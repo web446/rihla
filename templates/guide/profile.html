@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% from "partials/forms.html" import field %}
+{% block title %}Edit guide profile{% endblock %}
+
+{% block content %}
+<section class="container section" style="max-width: 760px">
+  <a class="back-link dark" href="{{ url_for('guide.dashboard') }}">← Dashboard</a>
+  <div class="info-card mt-3">
+    <p class="poster-kicker">Your guide profile</p>
+    <h1 class="h2">Edit profile</h1>
+    {% if profile.status == 'rejected' %}
+      <div class="alert alert-warning small">Saving will send your profile to an admin for approval again.</div>
+    {% endif %}
+
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="f-country_id" class="form-label">Country</label>
+          <select id="f-country_id" name="country_id" required
+                  class="form-select {% if errors.get('country_id') %}is-invalid{% endif %}">
+            {% for c in countries %}
+              <option value="{{ c.id }}" {% if values.get('country_id') == c.id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+          {% if errors.get('country_id') %}<div class="invalid-feedback">{{ errors['country_id'] }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          {{ field("price_per_day", "Price per day (USD)", errors, {"price_per_day": values.get("price", "")},
+                   type="number", required=true, attrs={"min": 10, "max": 1000, "step": "1"},
+                   help="Rihla keeps a small commission on each booking.") }}
+        </div>
+      </div>
+      {{ field("languages", "Languages", errors, values, required=true, attrs={"maxlength": 150}, help="Separate with commas.") }}
+      <div class="mb-3">
+        <label for="f-bio" class="form-label">Bio</label>
+        <textarea id="f-bio" name="bio" rows="5" required minlength="30" maxlength="1000"
+                  class="form-control {% if errors.get('bio') %}is-invalid{% endif %}">{{ values.get('bio', '') }}</textarea>
+        {% if errors.get('bio') %}<div class="invalid-feedback">{{ errors['bio'] }}</div>{% endif %}
+      </div>
+      <button class="btn btn-terracotta" type="submit">Save profile</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -6,6 +6,7 @@
     <p class="poster-kicker">Coming soon</p>
     <h1>{{ title }}</h1>
     <p class="lead mb-0">{{ message }}</p>
+    {% if link %}<a class="btn btn-terracotta mt-3" href="{{ link[0] }}">{{ link[1] }}</a>{% endif %}
   </div>
 </section>
 {% endblock %}

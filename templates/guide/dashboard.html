@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% from "partials/cards.html" import stars with context %}
+{% block title %}Guide dashboard{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
+    <div>
+      <p class="poster-kicker">Guide dashboard · {{ profile.country.name }}</p>
+      <h1 class="section-title mb-0">Hello, {{ g.user.full_name.split()[0] }}</h1>
+    </div>
+    <div class="d-flex gap-2">
+      {% if profile.status == 'approved' %}
+        <a class="btn btn-outline-ink" href="{{ url_for('public.guide_profile', guide_id=profile.id) }}">View public profile</a>
+      {% endif %}
+      <a class="btn btn-terracotta" href="{{ url_for('guide.profile') }}">Edit profile</a>
+    </div>
+  </div>
+
+  {# ----- Approval status ----- #}
+  {% set banners = {
+    "pending":  ("⏳", "Waiting for approval", "Our team is reviewing your profile. Travelers will see you as soon as an admin approves it."),
+    "approved": ("✅", "You're live!", "Travelers can find and book you on the " ~ profile.country.name ~ " page."),
+    "rejected": ("✋", "Profile not approved", "Please improve your bio or details. Saving your profile sends it for review again."),
+  } %}
+  {% set icon, title, text = banners[profile.status] %}
+  <div class="status-banner status-{{ profile.status }}">
+    <span class="big" aria-hidden="true">{{ icon }}</span>
+    <div><strong>{{ title }}</strong><br><span class="small">{{ text }}</span></div>
+  </div>
+
+  {# ----- Stats ----- #}
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="stat-card">
+      <div class="stat-label">Earned</div><div class="stat-value">{{ stats.earned|money }}</div>
+      <div class="small text-muted">finished trips, after commission</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card">
+      <div class="stat-label">Upcoming</div><div class="stat-value">{{ stats.upcoming|money }}</div>
+      <div class="small text-muted">booked, not yet guided</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card">
+      <div class="stat-label">Bookings</div><div class="stat-value">{{ stats.trips }}</div>
+      <div class="small text-muted">{{ stats.days }} guiding day(s)</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card">
+      <div class="stat-label">Rating</div><div class="stat-value">{{ stats.rating or "–" }}</div>
+      <div class="small">{{ stars(stats.rating, stats.reviews) }}</div></div></div>
+  </div>
+
+  {# ----- Bookings ----- #}
+  <h2 class="h4 mb-3">Your bookings</h2>
+  {% if items %}
+    <div class="rihla-table table-responsive mb-5">
+      <table class="table">
+        <thead><tr><th>Trip</th><th>Traveler</th><th>Dates</th><th>Days</th><th class="text-end">You receive</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for i in items %}
+            {% set b = i.booking %}
+            <tr>
+              <td>#{{ b.id }}</td>
+              <td>{{ b.traveler.full_name }}</td>
+              <td>{{ b.start_date.strftime('%d %b %Y') }} → {{ b.end_date.strftime('%d %b') }}</td>
+              <td>{{ i.quantity }}</td>
+              <td class="text-end">{{ i.provider_cents|money }}
+                <div class="small text-muted">of {{ i.line_total_cents|money }}</div></td>
+              <td>
+                {% if b.status == 'cancelled' %}<span class="badge-cool">Cancelled</span>
+                {% elif b.end_date < today %}<span class="badge-warm">Done</span>
+                {% else %}<span class="badge-ai">Upcoming</span>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted mb-5">No bookings yet. {% if profile.status == 'approved' %}Travelers will find you on the {{ profile.country.name }} page.{% endif %}</p>
+  {% endif %}
+
+  {# ----- Reviews ----- #}
+  <h2 class="h4 mb-3">What travelers say</h2>
+  {% for review in reviews %}
+    <article class="review">
+      <div class="d-flex justify-content-between flex-wrap gap-2">
+        <strong>{{ review.traveler.full_name }}</strong><span>{{ stars(review.rating) }}</span>
+      </div>
+      <p class="mb-1 mt-2">{{ review.comment }}</p>
+      <span class="small text-muted">{{ review.created_at.strftime('%d %B %Y') }}</span>
+    </article>
+  {% else %}
+    <p class="text-muted">No reviews yet.</p>
+  {% endfor %}
+</section>
+{% endblock %}

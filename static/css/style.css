@@ -442,6 +442,34 @@ a:hover { color: var(--ink); }
   to   { opacity: 1; transform: translateY(-50%) scale(1) rotate(-14deg); }
 }
 
+/* ==========================================================================
+   Reviews, guide dashboard, admin tables
+   ========================================================================== */
+.rated { font-size: .8rem; color: #B7861F; margin-left: .3rem; white-space: nowrap; }
+.star-picker { display: inline-flex; flex-direction: row-reverse; gap: .2rem; }
+.star-picker input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.star-picker label { font-size: 2.4rem; line-height: 1; color: #D8C7AE; cursor: pointer; transition: transform .15s, color .15s; }
+.star-picker label:hover,
+.star-picker label:hover ~ label,
+.star-picker input:checked ~ label { color: #E3A72F; }
+.star-picker label:hover { transform: scale(1.15); }
+.star-picker input:focus-visible + label { outline: 2px solid var(--terracotta); border-radius: 4px; }
+
+.status-banner { border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+.status-pending  { background: #FCE7C3; color: #6B4A00; }
+.status-approved { background: #E4EFE9; color: #2F5D48; }
+.status-rejected { background: #F8DCD4; color: #7A2E1C; }
+.status-banner .big { font-size: 2rem; }
+.stat-card { background: var(--paper); border-radius: var(--radius); padding: 1.2rem 1.4rem; border: 1px solid #EFE3D2; height: 100%; }
+.stat-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: #8A7B66; font-weight: 600; }
+.stat-value { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.admin-tabs .nav-link { color: var(--ink); border-radius: 999px; }
+.admin-tabs .nav-link.active { background: var(--ink); color: var(--sand); }
+.rihla-table { background: var(--paper); border-radius: var(--radius); overflow: hidden; border: 1px solid #EFE3D2; }
+.rihla-table table { margin: 0; }
+.rihla-table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: #8A7B66; background: var(--sand); font-weight: 600; }
+.rihla-table td, .rihla-table th { padding: .75rem 1rem; vertical-align: middle; }
+
 /* Respect users who turned off animations in their system settings */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

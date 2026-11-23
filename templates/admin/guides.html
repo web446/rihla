@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% from "partials/cards.html" import stars with context %}
+{% block title %}Guides · Admin{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Admin</p>
+  <h1 class="section-title">Guide approvals</h1>
+
+  {# Tabs are plain links with ?status=... #}
+  <ul class="nav nav-pills admin-tabs my-4">
+    {% for s, label in [("pending", "Pending"), ("approved", "Approved"), ("rejected", "Rejected")] %}
+      <li class="nav-item">
+        <a class="nav-link {{ 'active' if s == status }}" href="{{ url_for('admin.guides', status=s) }}">
+          {{ label }} <span class="badge text-bg-light">{{ counts.get(s, 0) }}</span></a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% for p in profiles %}
+    <article class="info-card mb-3">
+      <div class="row g-3 align-items-center">
+        <div class="col-lg-8">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <span class="avatar" aria-hidden="true">{{ p.user.full_name.split()|map('first')|join('')|upper }}</span>
+            <div>
+              <h2 class="h5 mb-0">{{ p.user.full_name }}</h2>
+              <div class="small text-muted">{{ p.user.email }} · {{ p.country.name }} · {{ p.price_per_day_cents|money }}/day</div>
+              {% if status == 'approved' %}{{ stars(*ratings.get(p.id, (none, 0))) }}{% endif %}
+            </div>
+          </div>
+          <div class="mb-2">{% for lang in p.language_list() %}<span class="chip">{{ lang }}</span>{% endfor %}</div>
+          <p class="small mb-0">{{ p.bio }}</p>
+        </div>
+        <div class="col-lg-4 d-flex gap-2 justify-content-lg-end flex-wrap">
+          {% for new_status, label, css in [("approved", "Approve", "btn-olive"), ("rejected", "Reject", "btn-outline-danger"), ("pending", "Back to pending", "btn-outline-ink")] %}
+            {% if new_status != status %}
+              <form method="post" action="{{ url_for('admin.set_guide_status', guide_id=p.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="status" value="{{ new_status }}">
+                <input type="hidden" name="back" value="{{ status }}">
+                <button class="btn btn-sm {{ css }}" type="submit">{{ label }}</button>
+              </form>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </article>
+  {% else %}
+    <div class="empty-state">No {{ status }} guides right now.</div>
+  {% endfor %}
+</section>
+{% endblock %}
