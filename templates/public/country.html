@@ -1,0 +1,241 @@
+{% extends "layout.html" %}
+{% from "partials/cards.html" import stars, guide_card with context %}
+{% block title %}{{ country.name }}{% endblock %}
+
+{% block content %}
+{# ---------------- Country poster header ---------------- #}
+<header class="country-hero poster poster-{{ country.slug }}"
+        {% if country.hero_image %}style="background-image: url('{{ country.hero_image }}')"{% endif %}>
+  <div class="container">
+    <a href="{{ url_for('public.countries') }}" class="back-link">← All destinations</a>
+    <div class="country-hero-inner">
+      <span class="hero-stamp" aria-hidden="true">{{ poster_icons.get(country.slug, '✈️') }}</span>
+      <div>
+        <p class="poster-kicker">Greetings from</p>
+        <h1 class="country-name">{{ country.name }}</h1>
+        <p class="country-tagline">{{ country.tagline }}</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+{# ---------------- Sticky section menu (scrolls sideways on phones) ---------------- #}
+<nav class="section-nav" aria-label="Sections">
+  <div class="container">
+    {% for anchor, label in [("overview", "Overview"), ("see", "See"), ("eat", "Eat"), ("stay", "Stay"),
+                             ("fly", "Fly"), ("guides", "Guides"), ("plan", "Trip cost")] %}
+      <a href="#{{ anchor }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+</nav>
+
+<div class="container">
+
+  {# ---------------- Overview ---------------- #}
+  <section id="overview" class="country-section">
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <h2 class="section-title">Overview</h2>
+        <p class="lead">{{ country.description }}</p>
+        <div>{% for tag in country.tag_list() %}<span class="chip">{{ tag }}</span>{% endfor %}</div>
+      </div>
+      <div class="col-lg-5">
+        <dl class="facts">
+          <div><dt>Best time</dt><dd>{{ country.best_time }}</dd></div>
+          <div><dt>Currency</dt><dd>{{ country.currency }}</dd></div>
+          <div><dt>Language</dt><dd>{{ country.language }}</dd></div>
+          <div><dt>Daily spend</dt><dd>≈ {{ country.avg_daily_spend_cents|money }} / person</dd></div>
+        </dl>
+        {# Mini calendar: warm months highlighted #}
+        <div class="month-strip" aria-label="Warm months">
+          {% set warm = country.warm_month_list() %}
+          {% for num, name in month_names.items() %}
+            <span class="{{ 'warm' if num in warm }}" title="{{ name }}{{ ' (warm)' if num in warm }}">{{ name[0] }}</span>
+          {% endfor %}
+        </div>
+        <p class="small text-muted mt-1">☀️ Highlighted months are warm.</p>
+      </div>
+    </div>
+  </section>
+
+  {# ---------------- Monuments ---------------- #}
+  <section id="see" class="country-section">
+    <h2 class="section-title">Famous monuments</h2>
+    <div class="row g-3">
+      {% for m in monuments %}
+        <div class="col-md-6 col-lg-4">
+          <article class="info-card h-100">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <h3 class="h5">{{ m.name }}</h3>
+              <span class="ticket">{{ 'Free' if m.entry_cost_cents == 0 else m.entry_cost_cents|money }}</span>
+            </div>
+            <p class="small text-muted mb-1">📍 {{ m.city }}</p>
+            <p class="small mb-0">{{ m.description }}</p>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ---------------- Food ---------------- #}
+  <section id="eat" class="country-section">
+    <h2 class="section-title">Eat like a local</h2>
+    <div class="row g-3">
+      {% for r in restaurants %}
+        <div class="col-md-6">
+          <article class="info-card menu-card h-100">
+            <div class="d-flex justify-content-between gap-2">
+              <h3 class="h5 mb-0">{{ r.name }}</h3>
+              <span class="price-range" title="Price range">{{ r.price_range }}</span>
+            </div>
+            <p class="small text-muted mb-2">📍 {{ r.city }} · ≈ {{ r.avg_meal_cost_cents|money }} per person</p>
+            <p class="must-try">Must try: <strong>{{ r.must_try_dish }}</strong></p>
+            <p class="small mb-0">{{ r.description }}</p>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ---------------- Stays ---------------- #}
+  <section id="stay" class="country-section">
+    <h2 class="section-title">Where to stay</h2>
+    <div class="row g-3">
+      {% for s in stays %}
+        <div class="col-md-6 col-lg-3">
+          <article class="info-card stay-card h-100 d-flex flex-column">
+            <span class="stay-type">{{ '🏨 Hotel' if s.type == 'hotel' else '🏠 Apartment' }}</span>
+            <h3 class="h5 mt-2">{{ s.name }}</h3>
+            <p class="small text-muted mb-1">📍 {{ s.city }}</p>
+            <div class="mb-2">{{ stars(s.rating) }}</div>
+            <p class="small flex-grow-1">{{ s.description }}</p>
+            <p class="mb-0"><strong class="price">{{ s.price_per_night_cents|money }}</strong>
+              <span class="small text-muted">/ night</span></p>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ---------------- Flights ---------------- #}
+  <section id="fly" class="country-section">
+    <h2 class="section-title">Flights from Beirut</h2>
+    {% if flights %}
+      <div class="d-grid gap-3">
+        {% for f in flights %}
+          <article class="flight-pass">
+            <div class="fp-main">
+              <div class="fp-airline">{{ f.airline }} · {{ f.flight_number }}</div>
+              <div class="fp-route">
+                <div><span class="fp-city">Beirut</span><span class="fp-date">{{ f.depart_date.strftime('%a %d %b %Y') }}</span></div>
+                <div class="fp-line"><span>{{ f.stops }}</span></div>
+                <div class="text-end"><span class="fp-city">{{ f.to_city }}</span><span class="fp-date">back {{ f.return_date.strftime('%a %d %b') }}</span></div>
+              </div>
+            </div>
+            <div class="fp-stub">
+              <strong class="price">{{ f.price_cents|money }}</strong>
+              <span class="small">round trip / seat</span>
+              <span class="seats {{ 'low' if f.seats_available <= 5 }}">{{ f.seats_available }} seats left</span>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">No upcoming flights right now. Check back soon!</p>
+    {% endif %}
+  </section>
+
+  {# ---------------- Guides ---------------- #}
+  <section id="guides" class="country-section">
+    <h2 class="section-title">Local guides</h2>
+    {% if guides %}
+      <div class="row g-3">
+        {% for guide, rating, count in guides %}
+          <div class="col-md-6 col-lg-4">{{ guide_card(guide, rating, count) }}</div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">No approved guides here yet.</p>
+    {% endif %}
+  </section>
+
+  {# ---------------- Trip cost calculator ---------------- #}
+  <section id="plan" class="country-section">
+    <h2 class="section-title">Estimate your trip</h2>
+    <p class="text-muted">Pick what you'd like. The total updates instantly (calculated by our server, the same way as real bookings).</p>
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <form id="calculator" class="info-card" data-country="{{ country.slug }}"
+              data-api="{{ url_for('public.api_estimate') }}">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label" for="c-flight">Flight</label>
+              <select id="c-flight" name="flight_id" class="form-select">
+                <option value="">No flight</option>
+                {% for f in flights %}
+                  <option value="{{ f.id }}" data-nights="{{ (f.return_date - f.depart_date).days }}">
+                    {{ f.depart_date.strftime('%d %b') }}–{{ f.return_date.strftime('%d %b %Y') }} · {{ f.airline }} · {{ f.price_cents|money }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="c-travelers">Travelers</label>
+              <input id="c-travelers" name="travelers" type="number" min="1" max="9" value="1" class="form-control">
+            </div>
+            <div class="col-md-8">
+              <label class="form-label" for="c-stay">Stay</label>
+              <select id="c-stay" name="stay_id" class="form-select">
+                <option value="">No stay</option>
+                {% for s in stays %}<option value="{{ s.id }}">{{ s.name }} · {{ s.price_per_night_cents|money }}/night</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="c-nights">Nights</label>
+              <input id="c-nights" name="nights" type="number" min="0" max="60" value="6" class="form-control">
+            </div>
+            <div class="col-md-8">
+              <label class="form-label" for="c-guide">Guide</label>
+              <select id="c-guide" name="guide_id" class="form-select">
+                <option value="">No guide</option>
+                {% for guide, rating, count in guides %}<option value="{{ guide.id }}">{{ guide.user.full_name }} · {{ guide.price_per_day_cents|money }}/day</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="c-guide-days">Guide days</label>
+              <input id="c-guide-days" name="guide_days" type="number" min="0" max="30" value="2" class="form-control">
+            </div>
+            <div class="col-12">
+              <span class="form-label d-block">Monuments to visit</span>
+              <div class="d-flex flex-wrap gap-2">
+                {% for m in monuments %}
+                  <input type="checkbox" class="btn-check" id="c-m{{ m.id }}" name="monument_ids" value="{{ m.id }}" autocomplete="off">
+                  <label class="btn btn-sm btn-chip" for="c-m{{ m.id }}">{{ m.name }} · {{ 'Free' if m.entry_cost_cents == 0 else m.entry_cost_cents|money }}</label>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="c-days">Trip days</label>
+              <input id="c-days" name="days" type="number" min="0" max="60" value="7" class="form-control">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="receipt" aria-live="polite">
+          <div class="receipt-head">TRIP ESTIMATE · {{ country.name|upper }}</div>
+          <ul id="receipt-lines" class="receipt-lines">
+            <li class="text-muted">Choose a flight, a stay or a guide…</li>
+          </ul>
+          <div class="receipt-total"><span>Estimated total</span><strong id="receipt-total">$0.00</strong></div>
+          <p class="small text-muted mb-0 mt-2">Prices are estimates. Booking opens in the next step.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+{% endblock %}

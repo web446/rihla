@@ -1,17 +1,145 @@
 {% extends "layout.html" %}
-{% block title %}Home{% endblock %}
+{% from "partials/cards.html" import postcard, guide_card with context %}
+{% block title %}Travel from Beirut, planned end to end{% endblock %}
+
 {% block content %}
-{# Temporary homepage for Step 2; the full design comes in Step 3. #}
-<section class="hero-temp">
-  <div class="container py-5">
-    <p class="poster-kicker">Flights from Beirut · Stays · Guides · Food</p>
-    <h1 class="display-4">From the first click<br>to the last dinner.</h1>
-    {% if g.user %}
-      <p class="lead">You are logged in as <strong>{{ g.user.email }}</strong> ({{ g.user.role }}).</p>
-    {% else %}
-      <p class="lead">Log in or sign up to start planning.</p>
-      <a class="btn btn-terracotta btn-lg" href="{{ url_for('auth.register') }}">Start my trip</a>
-    {% endif %}
+{# ---------------- Hero + boarding-pass search ---------------- #}
+<section class="hero">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <p class="poster-kicker">Flights from Beirut · Stays · Guides · Food</p>
+        <h1 class="hero-title">From the first click<br>to the <em>last dinner.</em></h1>
+        <p class="lead hero-lead">Pick a country and see everything in one place: what to visit, where to eat,
+          where to sleep, who to explore with and what it will really cost. Then book it, by clicking or
+          by chatting with our AI travel agent.</p>
+      </div>
+
+      <div class="col-lg-6">
+        {# A GET form: the filters end up in the URL, e.g. /countries?month=3&budget=1500 #}
+        <form class="boarding-pass" action="{{ url_for('public.countries') }}" method="get">
+          <div class="bp-header">
+            <span>BOARDING PASS</span><span>RIHLA AIR ✈</span>
+          </div>
+          <div class="bp-body">
+            <div class="bp-route">
+              <div><span class="bp-label">From</span><span class="bp-code">BEY</span><span class="bp-city">Beirut</span></div>
+              <span class="bp-plane" aria-hidden="true">✈</span>
+              <div class="text-end">
+                <label class="bp-label" for="bp-to">To</label>
+                <select id="bp-to" name="to" class="form-select bp-select">
+                  <option value="">Anywhere</option>
+                  {% for c in countries %}<option value="{{ c.slug }}">{{ c.name }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row g-2">
+              <div class="col-6 col-md-3">
+                <label class="bp-label" for="bp-month">Month</label>
+                <select id="bp-month" name="month" class="form-select">
+                  <option value="">Any</option>
+                  {% for num, name in month_names.items() %}<option value="{{ num }}">{{ name[:3] }}</option>{% endfor %}
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bp-label" for="bp-days">Days</label>
+                <input id="bp-days" name="days" type="number" min="1" max="30" value="7" class="form-control">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bp-label" for="bp-budget">Budget $</label>
+                <input id="bp-budget" name="budget" type="number" min="0" step="50" placeholder="1500" class="form-control">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bp-label" for="bp-interest">Into</label>
+                <select id="bp-interest" name="interest" class="form-select">
+                  <option value="">Anything</option>
+                  {% for tag in interests %}<option value="{{ tag }}">{{ tag|capitalize }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="bp-stub">
+            <button class="btn btn-terracotta w-100 py-2" type="submit">Find my trip</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </section>
+
+{# ---------------- Destinations ---------------- #}
+<section class="container section">
+  <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+    <div>
+      <p class="poster-kicker">Destinations</p>
+      <h2 class="section-title">Pick your next stamp</h2>
+    </div>
+    <a href="{{ url_for('public.countries') }}" class="btn btn-outline-ink">Compare all countries</a>
+  </div>
+  <div class="row g-4">
+    {% for c in countries %}
+      <div class="col-sm-6 col-lg-4">{{ postcard(c) }}</div>
+    {% endfor %}
+  </div>
+</section>
+
+{# ---------------- How it works ---------------- #}
+<section class="how-band">
+  <div class="container section">
+    <p class="poster-kicker text-center">How it works</p>
+    <h2 class="section-title text-center mb-5">One trip, four stops</h2>
+    <div class="row g-4 text-center">
+      {% for icon, title, text in [
+        ("✈️", "Fly", "Flights from Beirut with real-time seats left."),
+        ("🛏️", "Stay", "Hotels and local apartments for every budget."),
+        ("🧭", "Explore", "Approved local guides rated by real travelers."),
+        ("🍽️", "Eat", "The dishes and restaurants locals actually love."),
+      ] %}
+        <div class="col-6 col-lg-3">
+          <div class="step-icon" aria-hidden="true">{{ icon }}</div>
+          <h3 class="h5 mt-3">{{ loop.index }}. {{ title }}</h3>
+          <p class="small mb-0">{{ text }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ---------------- AI agent teaser ---------------- #}
+<section class="container section">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-5">
+      <p class="poster-kicker">Your AI travel agent</p>
+      <h2 class="section-title">Just say where you dream of going.</h2>
+      <p>Tell Rihla your month, budget and mood. It searches our flights, stays and guides, builds a full
+         trip with the total price, and books it the moment you say "Confirm".</p>
+      {% if not g.user %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-terracotta">Create a free account to chat</a>
+      {% endif %}
+    </div>
+    <div class="col-lg-7">
+      <div class="chat-demo" aria-label="Example conversation">
+        <div class="bubble bubble-user">I want somewhere warm in March for 5 days, budget $1500.</div>
+        <div class="bubble bubble-agent">Egypt and Thailand are both warm in March. ☀️ Egypt fits your budget best,
+          with flights from Beirut on 8 and 20 March. Want me to add a guide?</div>
+        <div class="bubble bubble-user">Yes, an English-speaking guide for 2 days.</div>
+        <div class="bubble bubble-agent">Omar Hassan, Egyptologist, $70/day. Here's your full trip with the total price.
+          <strong>Shall I book this?</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ---------------- Top guides ---------------- #}
+{% if top_guides %}
+<section class="container section pt-0">
+  <p class="poster-kicker">Rated by real travelers</p>
+  <h2 class="section-title mb-4">Top local guides</h2>
+  <div class="row g-4">
+    {% for guide, rating, count in top_guides %}
+      <div class="col-sm-6 col-lg-3">{{ guide_card(guide, rating, count, show_country=true) }}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
 {% endblock %}

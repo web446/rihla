@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% from "partials/cards.html" import postcard with context %}
+{% block title %}Compare destinations{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Destinations</p>
+  <h1 class="section-title">Where should you go?</h1>
+  <p class="text-muted">Estimates include the cheapest available flight from Beirut, the cheapest stay and
+    typical daily spending on food and transport.</p>
+
+  {# Filter bar: a GET form, so every search has its own shareable URL #}
+  <form class="filter-bar row g-2 align-items-end" method="get" action="{{ url_for('public.countries') }}">
+    <div class="col-6 col-md-2">
+      <label class="form-label small" for="f-month">Month</label>
+      <select id="f-month" name="month" class="form-select">
+        <option value="">Any</option>
+        {% for num, name in month_names.items() %}
+          <option value="{{ num }}" {% if filters.month == num %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="form-label small" for="f-days">Days</label>
+      <input id="f-days" name="days" type="number" min="1" max="30" value="{{ filters.days }}" class="form-control">
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="form-label small" for="f-travelers">Travelers</label>
+      <input id="f-travelers" name="travelers" type="number" min="1" max="9" value="{{ filters.travelers }}" class="form-control">
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="form-label small" for="f-budget">Max budget ($)</label>
+      <input id="f-budget" name="budget" type="number" min="0" step="50" value="{{ filters.budget }}" class="form-control" placeholder="No limit">
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="form-label small" for="f-interest">Interest</label>
+      <select id="f-interest" name="interest" class="form-select">
+        <option value="">Anything</option>
+        {% for tag in interests %}
+          <option value="{{ tag }}" {% if filters.interest == tag %}selected{% endif %}>{{ tag|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-md-2 d-grid">
+      <button class="btn btn-terracotta" type="submit">Search</button>
+    </div>
+  </form>
+
+  {% if results %}
+    <p class="mt-4 mb-3 small text-muted">{{ results|length }} destination{{ 's' if results|length != 1 }} found
+      {% if filters.month %} for {{ month_names[filters.month] }}{% endif %}.</p>
+    <div class="row g-4">
+      {% for r in results %}
+        <div class="col-sm-6 col-lg-4">
+          {{ postcard(r.country) }}
+          <div class="estimate-strip">
+            <div>
+              <span class="small text-muted">{{ filters.days }} days{% if filters.travelers > 1 %}, {{ filters.travelers }} travelers{% endif %} from</span>
+              <strong class="price d-block">{{ r.estimate.total_cents|money }}</strong>
+            </div>
+            <div class="text-end small">
+              {% if r.warm is true %}<span class="badge-warm">☀️ Warm in {{ month_names[filters.month][:3] }}</span>
+              {% elif r.warm is false %}<span class="badge-cool">Cooler season</span>{% endif %}
+              {% if r.flight %}
+                <div class="text-muted mt-1">✈ {{ r.flight.depart_date.strftime('%d %b') }} · {{ r.flight.price_cents|money }}</div>
+              {% else %}
+                <div class="text-muted mt-1">No flight {% if filters.month %}that month{% else %}scheduled{% endif %}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state mt-4">
+      <p class="h4">No destination fits those filters yet.</p>
+      <p class="mb-3">Try a bigger budget, fewer days or another month.</p>
+      <a class="btn btn-outline-ink" href="{{ url_for('public.countries') }}">Clear filters</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

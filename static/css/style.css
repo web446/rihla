@@ -136,13 +136,273 @@ a:hover { color: var(--ink); }
   font-family: var(--font-display); font-size: 3rem; font-weight: 700;
   transform: rotate(-12deg);
 }
-.hero-temp { background: linear-gradient(180deg, var(--sand) 0%, var(--sand-deep) 100%); }
+/* ==========================================================================
+   Shared pieces
+   ========================================================================== */
+.section { padding-top: 4rem; padding-bottom: 4rem; }
+.section-title { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; }
+.price { font-family: var(--font-display); color: var(--ink); font-size: 1.25rem; }
+.chip {
+  display: inline-block; font-size: .75rem; font-weight: 500;
+  padding: .2rem .65rem; margin: 0 .3rem .3rem 0; border-radius: 999px;
+  background: var(--sand-deep); color: var(--ink);
+}
+.stars { color: #D8C7AE; letter-spacing: .05em; }
+.stars .on { color: #E3A72F; }
+.stars-text { font-size: .85rem; margin-left: .25rem; }
+.avatar {
+  display: inline-grid; place-items: center; flex-shrink: 0;
+  width: 3.2rem; height: 3.2rem; border-radius: 50%;
+  background: var(--ink); color: var(--saffron);
+  font-family: var(--font-display); font-weight: 700; font-size: 1.1rem;
+}
+.avatar-lg { width: 6rem; height: 6rem; font-size: 2rem; }
+.info-card, .guide-card {
+  background: var(--paper); border-radius: var(--radius);
+  box-shadow: 0 2px 10px rgba(20, 33, 61, .06); padding: 1.4rem;
+  border: 1px solid #EFE3D2;
+}
+.guide-card { display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; }
+.guide-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.empty-state { background: var(--paper); border-radius: var(--radius); padding: 2.5rem; text-align: center; }
+
+/* ---------- Country posters (CSS only, no photos needed) ---------- */
+.poster-italy    { --p1: #E07A5F; --p2: #F2CC8F; --p3: #8C3B2A; }
+.poster-japan    { --p1: #B23A48; --p2: #F7B7C3; --p3: #3B1F2B; }
+.poster-greece   { --p1: #1F5FA8; --p2: #D6E8F7; --p3: #0F2E57; }
+.poster-turkey   { --p1: #1A7F86; --p2: #E9B44C; --p3: #0D4448; }
+.poster-egypt    { --p1: #C98A2E; --p2: #F4D58D; --p3: #6B3A1F; }
+.poster-thailand { --p1: #2A9D8F; --p2: #E9C46A; --p3: #134E48; }
+.poster {
+  background-color: var(--p1, var(--ink));
+  background-image:
+    radial-gradient(circle at 18% 26%, var(--p2, var(--saffron)) 0 38px, transparent 39px),
+    repeating-linear-gradient(-45deg, transparent 0 14px, rgba(255, 255, 255, .05) 14px 28px),
+    linear-gradient(170deg, var(--p1, var(--ink)) 0%, var(--p3, #000) 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+/* ---------- Postcards (country cards) ---------- */
+.postcard {
+  position: relative; display: flex; align-items: flex-end;
+  min-height: 250px; border-radius: var(--radius); overflow: hidden;
+  color: #fff; text-decoration: none; box-shadow: var(--shadow);
+  border: 6px solid var(--paper);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.postcard:hover { transform: translateY(-4px) rotate(-.6deg); color: #fff; box-shadow: 0 16px 40px rgba(20, 33, 61, .2); }
+.postcard-stamp {
+  position: absolute; top: .9rem; right: .9rem;
+  width: 3.6rem; height: 4.2rem; display: grid; place-items: center; font-size: 1.8rem;
+  background: var(--paper); border-radius: 4px;
+  outline: 3px dashed var(--paper); outline-offset: -7px;   /* perforated stamp edge */
+  transform: rotate(6deg);
+}
+.postcard-body { display: block; width: 100%; padding: 1.2rem 1.3rem; background: linear-gradient(0deg, rgba(0, 0, 0, .55), transparent); }
+.postcard-greeting { display: block; font-size: .75rem; letter-spacing: .15em; text-transform: uppercase; opacity: .85; }
+.postcard-name { display: block; font-family: var(--font-display); font-size: 2.1rem; font-weight: 700; line-height: 1.05; }
+.postcard-tagline { display: block; font-size: .9rem; opacity: .95; }
+
+/* ==========================================================================
+   Homepage
+   ========================================================================== */
+.hero {
+  padding: 4rem 0 4.5rem;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(242, 204, 143, .55) 0 160px, transparent 161px),
+    linear-gradient(180deg, var(--sand) 0%, var(--sand-deep) 100%);
+}
+.hero-title { font-size: clamp(2.3rem, 4.6vw, 3.5rem); font-weight: 700; line-height: 1.05; }
+.hero-title em { color: var(--terracotta); font-style: italic; }
+.hero-lead { max-width: 34rem; }
+
+/* Boarding-pass search form */
+.boarding-pass {
+  background: var(--paper); border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden; transform: rotate(1deg);
+}
+.bp-header {
+  display: flex; justify-content: space-between; padding: .7rem 1.4rem;
+  background: var(--ink); color: var(--saffron);
+  font-family: ui-monospace, Consolas, monospace; font-size: .8rem; letter-spacing: .2em;
+}
+.bp-body { padding: 1.4rem; }
+.bp-route { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.bp-label { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: #8A7B66; margin-bottom: .2rem; }
+.bp-code { display: block; font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; color: var(--ink); line-height: 1; }
+.bp-city { font-size: .85rem; }
+.bp-plane { font-size: 1.6rem; color: var(--terracotta); flex: 1; text-align: center; border-bottom: 2px dotted #D8C7AE; line-height: 2; }
+.bp-select { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; min-width: 10rem; }
+.bp-stub { padding: 1rem 1.4rem 1.4rem; border-top: 2px dashed #E3D5C0; }
+
+/* How it works */
+.how-band { background: var(--ink); color: var(--sand); }
+.how-band h2, .how-band h3 { color: #fff; }
+.step-icon {
+  display: inline-grid; place-items: center; width: 4.5rem; height: 4.5rem; border-radius: 50%;
+  background: rgba(242, 204, 143, .15); border: 2px dashed var(--saffron); font-size: 1.8rem;
+}
+
+/* AI teaser chat */
+.chat-demo { background: var(--paper); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); display: grid; gap: .8rem; }
+.bubble { max-width: 85%; padding: .75rem 1rem; border-radius: 18px; font-size: .95rem; }
+.bubble-user { justify-self: end; background: var(--terracotta); color: #fff; border-bottom-right-radius: 4px; }
+.bubble-agent { justify-self: start; background: var(--sand-deep); color: var(--ink); border-bottom-left-radius: 4px; }
+
+/* ==========================================================================
+   Countries list
+   ========================================================================== */
+.filter-bar { background: var(--paper); border-radius: var(--radius); padding: 1.2rem; box-shadow: 0 2px 10px rgba(20, 33, 61, .06); }
+.estimate-strip {
+  display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  background: var(--paper); border-radius: 0 0 14px 14px; padding: .8rem 1rem; margin: -8px 6px 0;
+  border: 1px solid #EFE3D2; border-top: 0;
+}
+.badge-warm, .badge-cool { font-size: .75rem; padding: .15rem .55rem; border-radius: 999px; font-weight: 600; }
+.badge-warm { background: #FCE7C3; color: #8A5A00; }
+.badge-cool { background: #E1E8F2; color: #3A4F6F; }
+
+/* ==========================================================================
+   Country page
+   ========================================================================== */
+.country-hero { color: #fff; padding: 2rem 0 3rem; min-height: 320px; display: flex; align-items: flex-end; }
+.country-hero.poster {   /* bigger sun on the right, away from the text */
+  background-image:
+    radial-gradient(circle at 84% 48%, var(--p2) 0 90px, transparent 91px),
+    repeating-linear-gradient(-45deg, transparent 0 14px, rgba(255, 255, 255, .05) 14px 28px),
+    linear-gradient(170deg, var(--p1) 0%, var(--p3) 100%);
+}
+.country-hero .poster-kicker { color: rgba(255, 255, 255, .85); }
+.back-link { color: rgba(255, 255, 255, .9); text-decoration: none; font-size: .9rem; display: inline-block; margin-bottom: 4rem; }
+.back-link:hover { color: #fff; }
+.back-link.dark { color: var(--ink); margin-bottom: 0; }
+.country-hero-inner { display: flex; align-items: center; gap: 1.5rem; }
+.hero-stamp {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 6rem; height: 7rem; font-size: 3rem; background: var(--paper); border-radius: 6px;
+  outline: 4px dashed var(--paper); outline-offset: -10px; transform: rotate(-5deg);
+}
+.country-name { color: #fff; font-size: clamp(2.8rem, 7vw, 4.5rem); font-weight: 700; line-height: 1; margin: 0; }
+.country-tagline { font-size: 1.2rem; margin: .4rem 0 0; }
+
+.section-nav {
+  position: sticky; top: 64px; z-index: 10;
+  background: rgba(247, 239, 227, .95); backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--sand-deep);
+}
+.section-nav .container { display: flex; gap: .3rem; overflow-x: auto; padding-top: .6rem; padding-bottom: .6rem; }
+.section-nav a {
+  white-space: nowrap; text-decoration: none; color: var(--ink); font-weight: 500; font-size: .9rem;
+  padding: .35rem .9rem; border-radius: 999px;
+}
+.section-nav a:hover { background: var(--ink); color: var(--sand); }
+.country-section { padding: 3rem 0 1rem; scroll-margin-top: 130px; }  /* stop headings hiding under the sticky menus */
+
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-bottom: 1rem; }
+.facts div { background: var(--paper); border-radius: 12px; padding: .8rem 1rem; border: 1px solid #EFE3D2; }
+.facts dt { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: #8A7B66; font-weight: 600; }
+.facts dd { margin: 0; color: var(--ink); font-weight: 500; }
+.month-strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
+.month-strip span {
+  text-align: center; padding: .35rem 0; border-radius: 6px; font-size: .8rem; font-weight: 600;
+  background: var(--sand-deep); color: #9C8D78;
+}
+.month-strip span.warm { background: var(--saffron); color: var(--ink); }
+
+.ticket {
+  white-space: nowrap; font-size: .8rem; font-weight: 600; color: var(--ink);
+  background: var(--saffron); padding: .2rem .6rem; border-radius: 6px;
+  border-left: 2px dashed rgba(20, 33, 61, .35);
+}
+.menu-card { border-top: 5px solid var(--terracotta); }
+.price-range { font-weight: 700; color: var(--olive-dark); letter-spacing: .1em; }
+.must-try { font-family: var(--font-display); font-style: italic; margin-bottom: .4rem; }
+.stay-type { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--olive-dark); }
+
+/* Flights as boarding passes */
+.flight-pass {
+  display: flex; background: var(--paper); border-radius: var(--radius); overflow: hidden;
+  box-shadow: 0 2px 10px rgba(20, 33, 61, .06); border: 1px solid #EFE3D2;
+}
+.fp-main { flex: 1; padding: 1.2rem 1.4rem; }
+.fp-airline { font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: #8A7B66; font-weight: 600; margin-bottom: .6rem; }
+.fp-route { display: flex; align-items: center; gap: 1rem; }
+.fp-city { display: block; font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--ink); }
+.fp-date { font-size: .85rem; }
+.fp-line { flex: 1; text-align: center; font-size: .75rem; color: #8A7B66; border-bottom: 2px dotted #D8C7AE; padding-bottom: .2rem; position: relative; }
+.fp-line::after { content: "✈"; position: absolute; right: -4px; bottom: -.75rem; color: var(--terracotta); }
+.fp-stub {
+  width: 190px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: center; gap: .15rem;
+  background: var(--sand); border-left: 2px dashed #D8C7AE; text-align: center;
+}
+.seats { font-size: .8rem; font-weight: 600; color: var(--olive-dark); }
+.seats.low { color: var(--terracotta-dark); }
+
+/* Calculator */
+.btn-chip { border: 1.5px solid #D8C7AE; border-radius: 999px; background: var(--paper); color: var(--ink); }
+.btn-check:checked + .btn-chip { background: var(--olive-dark); border-color: var(--olive-dark); color: #fff; }
+.receipt {
+  position: sticky; top: 130px;
+  background: var(--paper); padding: 1.4rem; border-radius: 6px; box-shadow: var(--shadow);
+  font-family: ui-monospace, Consolas, monospace;
+  /* zig-zag "torn paper" bottom edge */
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
+          mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
+  padding-bottom: 2rem;
+}
+.receipt-head { text-align: center; letter-spacing: .15em; font-size: .8rem; padding-bottom: .8rem; border-bottom: 2px dashed #D8C7AE; }
+.receipt-lines { list-style: none; padding: 0; margin: .8rem 0; font-size: .85rem; }
+.receipt-lines li { display: flex; justify-content: space-between; gap: 1rem; padding: .45rem 0; border-bottom: 1px dotted #E3D5C0; }
+.receipt-lines small { color: #8A7B66; }
+.receipt-total { display: flex; justify-content: space-between; align-items: baseline; padding-top: .6rem; border-top: 2px dashed #D8C7AE; }
+.receipt-total strong { font-size: 1.5rem; color: var(--terracotta-dark); }
+.pulse { animation: pulse .4s ease; }
+@keyframes pulse { 50% { transform: scale(1.08); } }
+
+/* ==========================================================================
+   Guide profile
+   ========================================================================== */
+.guide-pass {
+  position: relative; background: var(--paper); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 2rem; text-align: center; border-top: 8px solid var(--olive);
+}
+.approved-stamp {
+  position: absolute; top: 1.2rem; right: 1rem; transform: rotate(12deg);
+  border: 3px double var(--olive-dark); color: var(--olive-dark); border-radius: 6px;
+  padding: .1rem .5rem; font-size: .75rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+}
+.review { background: var(--paper); border-radius: 14px; padding: 1.1rem 1.3rem; margin-bottom: .8rem; border: 1px solid #EFE3D2; }
+
+/* Respect users who turned off animations in their system settings */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
 
 /* ---------- Footer ---------- */
 .rihla-footer { background: var(--ink); color: var(--sand); padding: 1.5rem 0; margin-top: 3rem; }
 
 /* ---------- Phones ---------- */
+@media (max-width: 767px) {
+  .boarding-pass { transform: none; }
+  .flight-pass { flex-direction: column; }
+  .fp-stub { width: auto; border-left: 0; border-top: 2px dashed #D8C7AE; flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+  .fp-city { font-size: 1.1rem; }
+  .receipt { position: static; }
+  .section-nav { top: 56px; }
+}
 @media (max-width: 576px) {
+  .section { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+  .bp-code { font-size: 1.8rem; }
+  .bp-select { min-width: 7.5rem; font-size: 1rem; }
+  .hero-stamp { width: 4.2rem; height: 5rem; font-size: 2rem; }
+  .country-hero.poster {  /* small sun in the top corner so it never covers the name */
+    background-image:
+      radial-gradient(circle at 88% 16%, var(--p2) 0 34px, transparent 35px),
+      repeating-linear-gradient(-45deg, transparent 0 14px, rgba(255, 255, 255, .05) 14px 28px),
+      linear-gradient(170deg, var(--p1) 0%, var(--p3) 100%);
+  }
+  .back-link { margin-bottom: 2rem; }
   .auth-wrap { padding: 1rem 0; }
   .auth-form { padding: 1.5rem; }
   .placeholder-card { padding: 1.75rem; }
