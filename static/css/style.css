@@ -374,6 +374,74 @@ a:hover { color: var(--ink); }
 }
 .review { background: var(--paper); border-radius: 14px; padding: 1.1rem 1.3rem; margin-bottom: .8rem; border: 1px solid #EFE3D2; }
 
+/* ==========================================================================
+   Booking: add-to-trip forms, basket, checkout, My Trips
+   ========================================================================== */
+.basket-badge {
+  display: inline-grid; place-items: center; min-width: 1.3rem; height: 1.3rem; padding: 0 .3rem;
+  border-radius: 999px; background: var(--terracotta); color: #fff; font-size: .72rem; font-weight: 700;
+}
+.add-form { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.qty { width: 4.2rem; text-align: center; border-radius: 10px; padding: .3rem .4rem; }
+.fp-stub .add-form { justify-content: center; margin-top: .5rem; }
+
+.trip-dates { background: var(--sand); border-radius: 12px; padding: .9rem 1rem; }
+.basket-row {
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  padding: .9rem 0; border-bottom: 1px dashed #E3D5C0;
+}
+.basket-row .flex-grow-1 { min-width: 12rem; }
+.basket-qty { display: flex; align-items: center; gap: .4rem; white-space: nowrap; margin-left: auto; }
+.basket-icon { width: 2.6rem; height: 2.6rem; display: grid; place-items: center; border-radius: 50%; background: var(--sand-deep); font-size: 1.2rem; }
+
+/* Fake "Rihla Pay" wallet card */
+.pay-card { background: var(--paper); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; }
+.pay-wallet {
+  position: relative; aspect-ratio: 1.6; max-width: 340px; margin: 0 auto 1.2rem; border-radius: 16px;
+  padding: 1.2rem; color: #fff; display: flex; flex-direction: column; justify-content: space-between;
+  background: radial-gradient(circle at 85% 20%, var(--saffron) 0 30px, transparent 31px),
+              linear-gradient(135deg, var(--ink), #2F4A7A);
+  box-shadow: 0 12px 25px rgba(20, 33, 61, .3);
+}
+.pay-chip { width: 2.6rem; height: 2rem; border-radius: 6px; background: linear-gradient(135deg, #F2CC8F, #C9A25E); }
+.pay-brand { font-family: var(--font-display); font-size: 1.3rem; }
+.pay-name { font-family: ui-monospace, Consolas, monospace; letter-spacing: .15em; font-size: .85rem; }
+.pay-total { display: flex; justify-content: space-between; align-items: baseline; padding: .8rem 0; margin-bottom: .8rem; border-top: 2px dashed #E3D5C0; border-bottom: 2px dashed #E3D5C0; }
+.pay-total strong { font-family: var(--font-display); font-size: 1.8rem; color: var(--ink); }
+
+/* My Trips tickets */
+.trip-ticket {
+  position: relative; display: flex; background: var(--paper); border-radius: var(--radius);
+  overflow: hidden; box-shadow: 0 2px 10px rgba(20, 33, 61, .06); border: 1px solid #EFE3D2;
+}
+.tt-side {
+  width: 150px; flex-shrink: 0; color: #fff; padding: 1rem;
+  display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
+  border-right: 3px dashed var(--paper);
+}
+.tt-stamp { font-size: 1.8rem; background: var(--paper); border-radius: 4px; padding: .1rem .35rem; transform: rotate(-6deg); }
+.tt-country { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
+.tt-body { flex: 1; padding: 1.1rem 1.3rem; }
+.tt-items { list-style: none; padding: 0; margin: 0 0 .8rem; font-size: .9rem; }
+.tt-items li { display: flex; justify-content: space-between; gap: 1rem; padding: .35rem 0; border-bottom: 1px dotted #E3D5C0; }
+.badge-ai { font-size: .75rem; padding: .15rem .55rem; border-radius: 999px; font-weight: 600; background: #E4EFE9; color: var(--olive-dark); }
+.is-cancelled { opacity: .6; }
+.is-cancelled .tt-side { filter: grayscale(1); }
+.just-booked { outline: 3px solid var(--olive); outline-offset: 3px; }
+/* The "postmark" stamp that lands on a new booking */
+.postmark {
+  position: absolute; right: 1.2rem; top: 50%;
+  border: 4px double var(--olive-dark); color: var(--olive-dark); border-radius: 50%;
+  width: 7rem; height: 7rem; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700; letter-spacing: .1em;
+  background: transparent; pointer-events: none;   /* see-through, so prices stay readable */
+  animation: stamp .6s cubic-bezier(.2, 1.6, .4, 1) both .2s;
+}
+@keyframes stamp {
+  from { opacity: 0; transform: translateY(-50%) scale(2.2) rotate(-30deg); }
+  to   { opacity: 1; transform: translateY(-50%) scale(1) rotate(-14deg); }
+}
+
 /* Respect users who turned off animations in their system settings */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -389,6 +457,9 @@ a:hover { color: var(--ink); }
   .fp-stub { width: auto; border-left: 0; border-top: 2px dashed #D8C7AE; flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; }
   .fp-city { font-size: 1.1rem; }
   .receipt { position: static; }
+  .trip-ticket { flex-direction: column; }
+  .tt-side { width: auto; flex-direction: row; align-items: center; gap: .8rem; justify-content: flex-start; border-right: 0; border-bottom: 3px dashed var(--paper); }
+  .postmark { width: 5rem; height: 5rem; font-size: .8rem; top: 2.5rem; }
   .section-nav { top: 56px; }
 }
 @media (max-width: 576px) {

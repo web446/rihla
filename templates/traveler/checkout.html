@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Step 2 of 2</p>
+  <h1 class="section-title">Confirm and pay</h1>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-7">
+      <div class="info-card">
+        <h2 class="h4">Trip to {{ trip.country.name }}</h2>
+        <p>📅 {{ trip.start.strftime('%a %d %b %Y') }} → {{ trip.end.strftime('%a %d %b %Y') }}
+           ({{ (trip.end - trip.start).days }} nights)</p>
+        <ul class="receipt-lines">
+          {% for line in trip.estimate.lines %}
+            <li><span><strong>{{ line.label }}</strong><br><small>{{ line.detail }}</small></span><span>{{ line.total_cents|money }}</span></li>
+          {% endfor %}
+        </ul>
+        <a class="small" href="{{ url_for('traveler.basket_view') }}">← Change something</a>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      {# SIMULATED payment: there are no card fields on purpose. Nothing is charged. #}
+      <form method="post" action="{{ url_for('traveler.checkout') }}" class="pay-card">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="pay-wallet">
+          <span class="pay-chip" aria-hidden="true"></span>
+          <span class="pay-brand">Rihla Pay · DEMO</span>
+          <span class="pay-name">{{ g.user.full_name|upper }}</span>
+        </div>
+        <div class="pay-total">
+          <span>Total to pay</span>
+          <strong>{{ trip.estimate.total_cents|money }}</strong>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" name="confirm_simulated" value="yes" id="confirm-sim" required>
+          <label class="form-check-label small" for="confirm-sim">
+            I understand this is a <strong>simulated payment</strong> for a student project. No real money is charged.
+          </label>
+        </div>
+        <button class="btn btn-terracotta w-100 py-2" type="submit" id="pay-button">Pay {{ trip.estimate.total_cents|money }} &amp; book</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Disable the button after the first click so the trip can't be booked twice by a double click.
+  document.querySelector(".pay-card").addEventListener("submit", function () {
+    const button = document.getElementById("pay-button");
+    button.disabled = true;
+    button.textContent = "Booking…";
+  });
+</script>
+{% endblock %}

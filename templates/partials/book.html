@@ -1,0 +1,23 @@
+{#
+  "Add to trip" form shown under a flight, stay or guide.
+  - travelers see a small form (quantity + button) that POSTs to /me/basket/add
+  - visitors who are not logged in see a "Log in to book" link
+  - guides and admins see nothing (they can't book)
+#}
+{% macro add_to_trip(item_type, item, unit, anchor, default=1, max=9) %}
+  {% if g.user and g.user.role == 'traveler' %}
+    <form class="add-form" method="post" action="{{ url_for('traveler.basket_add') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="item_type" value="{{ item_type }}">
+      <input type="hidden" name="item_id" value="{{ item.id }}">
+      <input type="hidden" name="next" value="{{ request.path }}#{{ anchor }}">
+      <label class="visually-hidden" for="q-{{ item_type }}-{{ item.id }}">Number of {{ unit }}</label>
+      <input id="q-{{ item_type }}-{{ item.id }}" class="form-control form-control-sm qty" type="number"
+             name="quantity" min="1" max="{{ max }}" value="{{ default }}" required>
+      <span class="small text-muted">{{ unit }}</span>
+      <button class="btn btn-sm btn-terracotta" type="submit">Add to trip</button>
+    </form>
+  {% elif not g.user %}
+    <a class="btn btn-sm btn-outline-ink" href="{{ url_for('auth.login', next=request.path ~ '#' ~ anchor) }}">Log in to book</a>
+  {% endif %}
+{% endmacro %}

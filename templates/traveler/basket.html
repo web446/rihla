@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+{% block title %}Trip basket{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Step 1 of 2</p>
+  <h1 class="section-title">Your trip basket</h1>
+
+  {% if not trip %}
+    <div class="empty-state mt-4">
+      <p class="h4">Your basket is empty.</p>
+      <p>Open a destination and use <strong>Add to trip</strong> on a flight, a stay or a guide.</p>
+      <a class="btn btn-terracotta" href="{{ url_for('public.countries') }}">Browse destinations</a>
+    </div>
+  {% else %}
+    {% set labels = {"flight": ("✈️", "Flight", "seats"), "stay": ("🛏️", "Stay", "nights"), "guide": ("🧭", "Guide", "days")} %}
+    <div class="row g-4 mt-1">
+      <div class="col-lg-7">
+        {# One form for everything. The Remove buttons send the same form to another URL (formaction). #}
+        <form method="post" action="{{ url_for('traveler.basket_update') }}" class="info-card">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <h2 class="h4 mb-3">Trip to {{ trip.country.name }}
+            <a class="small fw-normal ms-2" href="{{ url_for('public.country', slug=trip.country.slug) }}">add more</a></h2>
+
+          {# ----- Dates ----- #}
+          <div class="trip-dates mb-4">
+            {% if trip.dates_fixed %}
+              <p class="mb-0">📅 <strong>{{ trip.start.strftime('%a %d %b %Y') }}</strong> → <strong>{{ trip.end.strftime('%a %d %b %Y') }}</strong>
+                <span class="small text-muted d-block">Dates come from your flight.</span></p>
+            {% else %}
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label small" for="b-start">Arrival</label>
+                  <input id="b-start" type="date" name="start" class="form-control" required
+                         min="{{ today.isoformat() }}" value="{{ trip.start.isoformat() if trip.start }}">
+                </div>
+                <div class="col-6">
+                  <label class="form-label small" for="b-end">Departure</label>
+                  <input id="b-end" type="date" name="end" class="form-control" required
+                         min="{{ today.isoformat() }}" value="{{ trip.end.isoformat() if trip.end }}">
+                </div>
+              </div>
+              <p class="small text-muted mt-1 mb-0">No flight in this trip, so choose your own dates.</p>
+            {% endif %}
+          </div>
+
+          {# ----- Items ----- #}
+          {% for item_type, (obj, qty) in trip["items"].items() %}
+            {% set icon, label, unit = labels[item_type] %}
+            <div class="basket-row">
+              <span class="basket-icon" aria-hidden="true">{{ icon }}</span>
+              <div class="flex-grow-1">
+                <span class="small text-muted text-uppercase">{{ label }}</span>
+                <div class="fw-semibold">
+                  {% if item_type == "flight" %}{{ obj.airline }} {{ obj.flight_number }} · Beirut → {{ obj.to_city }}
+                  {% elif item_type == "stay" %}{{ obj.name }}, {{ obj.city }}
+                  {% else %}{{ obj.user.full_name }}{% endif %}
+                </div>
+              </div>
+              <div class="basket-qty">
+                <label class="visually-hidden" for="qty-{{ item_type }}">{{ unit }}</label>
+                <input id="qty-{{ item_type }}" class="form-control form-control-sm qty" type="number"
+                       name="qty_{{ item_type }}" value="{{ qty }}" min="1" max="{{ 9 if item_type == 'flight' else 30 }}">
+                <span class="small text-muted">{{ unit }}</span>
+                <button class="btn btn-sm btn-link text-danger" type="submit" formnovalidate
+                        formaction="{{ url_for('traveler.basket_remove', item_type=item_type) }}"
+                        aria-label="Remove {{ label }}">✕</button>
+              </div>
+            </div>
+          {% endfor %}
+
+          <button class="btn btn-outline-ink mt-3" type="submit">Update trip</button>
+        </form>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="receipt">
+          <div class="receipt-head">TRIP TOTAL · {{ trip.country.name|upper }}</div>
+          <ul class="receipt-lines">
+            {% for line in trip.estimate.lines %}
+              <li><span><strong>{{ line.label }}</strong><br><small>{{ line.detail }}</small></span><span>{{ line.total_cents|money }}</span></li>
+            {% endfor %}
+          </ul>
+          <div class="receipt-total"><span>Total</span><strong>{{ trip.estimate.total_cents|money }}</strong></div>
+          {% if trip.start and trip.end %}
+            <a class="btn btn-terracotta w-100 mt-3" href="{{ url_for('traveler.checkout') }}">Continue to checkout</a>
+          {% else %}
+            <p class="small text-muted mt-3 mb-0">Choose your dates and press <em>Update trip</em> to continue.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

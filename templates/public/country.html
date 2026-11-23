@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% from "partials/cards.html" import stars, guide_card with context %}
+{% from "partials/book.html" import add_to_trip with context %}
 {% block title %}{{ country.name }}{% endblock %}
 
 {% block content %}
@@ -109,8 +110,9 @@
             <p class="small text-muted mb-1">📍 {{ s.city }}</p>
             <div class="mb-2">{{ stars(s.rating) }}</div>
             <p class="small flex-grow-1">{{ s.description }}</p>
-            <p class="mb-0"><strong class="price">{{ s.price_per_night_cents|money }}</strong>
+            <p class="mb-2"><strong class="price">{{ s.price_per_night_cents|money }}</strong>
               <span class="small text-muted">/ night</span></p>
+            {{ add_to_trip("stay", s, "nights", "stay", default=3, max=30) }}
           </article>
         </div>
       {% endfor %}
@@ -136,6 +138,7 @@
               <strong class="price">{{ f.price_cents|money }}</strong>
               <span class="small">round trip / seat</span>
               <span class="seats {{ 'low' if f.seats_available <= 5 }}">{{ f.seats_available }} seats left</span>
+              {{ add_to_trip("flight", f, "seats", "fly", default=1, max=[9, f.seats_available]|min) }}
             </div>
           </article>
         {% endfor %}
@@ -151,7 +154,11 @@
     {% if guides %}
       <div class="row g-3">
         {% for guide, rating, count in guides %}
-          <div class="col-md-6 col-lg-4">{{ guide_card(guide, rating, count) }}</div>
+          <div class="col-md-6 col-lg-4">
+            {% call guide_card(guide, rating, count) %}
+              <div class="mt-3 pt-3 border-top">{{ add_to_trip("guide", guide, "days", "guides", default=2, max=14) }}</div>
+            {% endcall %}
+          </div>
         {% endfor %}
       </div>
     {% else %}
@@ -228,7 +235,7 @@
             <li class="text-muted">Choose a flight, a stay or a guide…</li>
           </ul>
           <div class="receipt-total"><span>Estimated total</span><strong id="receipt-total">$0.00</strong></div>
-          <p class="small text-muted mb-0 mt-2">Prices are estimates. Booking opens in the next step.</p>
+          <p class="small text-muted mb-0 mt-2">This is an estimate. Use the "Add to trip" buttons above to book.</p>
         </div>
       </div>
     </div>

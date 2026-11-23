@@ -33,6 +33,11 @@
           <li class="nav-item"><a class="nav-link" href="{{ url_for('public.home') }}">Destinations</a></li>
           {% if g.user and g.user.role == 'traveler' %}
             <li class="nav-item"><a class="nav-link" href="{{ url_for('traveler.trips') }}">My Trips</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('traveler.basket_view') }}">
+                Trip basket{% if basket_count %} <span class="basket-badge">{{ basket_count }}</span>{% endif %}
+              </a>
+            </li>
           {% elif g.user and g.user.role == 'guide' %}
             <li class="nav-item"><a class="nav-link" href="{{ url_for('guide.dashboard') }}">Guide dashboard</a></li>
           {% elif g.user and g.user.role == 'admin' %}

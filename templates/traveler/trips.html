@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block title %}My Trips{% endblock %}
+
+{# One booking drawn as a ticket. #}
+{% macro ticket(b, kind) %}
+  <article class="trip-ticket {{ 'just-booked' if b.id == new_id }} {{ 'is-cancelled' if kind == 'cancelled' }}">
+    <div class="tt-side poster poster-{{ b.country.slug if b.country else '' }}">
+      <span class="tt-stamp" aria-hidden="true">{{ poster_icons.get(b.country.slug, '✈️') if b.country else '✈️' }}</span>
+      <span class="tt-country">{{ b.country.name if b.country else 'Trip' }}</span>
+    </div>
+    <div class="tt-body">
+      <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+        <div>
+          <span class="small text-muted">Trip #{{ b.id }}</span>
+          <div class="fw-semibold">📅 {{ b.start_date.strftime('%d %b %Y') }} → {{ b.end_date.strftime('%d %b %Y') }}
+            <span class="text-muted small">({{ b.nights }} nights)</span></div>
+        </div>
+        <div class="text-end">
+          {% if b.source == 'agent' %}<span class="badge-ai" title="Booked by chatting with the AI travel agent">🤖 Booked with AI</span>{% endif %}
+          {% if kind == 'cancelled' %}<span class="badge-cool">Cancelled</span>{% endif %}
+        </div>
+      </div>
+      <ul class="tt-items">
+        {% for item in b.items %}
+          <li>
+            <span>{{ item.title }} <span class="text-muted small">· {{ item.quantity }} {{ item.unit }}</span></span>
+            <span>{{ item.line_total_cents|money }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <strong class="price">{{ b.total_cents|money }}</strong>
+        {% if kind == 'upcoming' %}
+          {# confirm() asks "are you sure?" in the browser before the form is sent #}
+          <form method="post" action="{{ url_for('traveler.cancel', booking_id=b.id) }}"
+                onsubmit="return confirm('Cancel trip #{{ b.id }}? Flight seats will be released.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-outline-danger" type="submit">Cancel trip</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+    {% if b.id == new_id %}<span class="postmark" aria-hidden="true">BOOKED</span>{% endif %}
+  </article>
+{% endmacro %}
+
+{% block content %}
+<section class="container section">
+  <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
+    <div>
+      <p class="poster-kicker">Your passport</p>
+      <h1 class="section-title mb-0">My Trips</h1>
+    </div>
+    <a class="btn btn-terracotta" href="{{ url_for('public.countries') }}">Plan a new trip</a>
+  </div>
+
+  {% for kind, title, empty in [("upcoming", "Upcoming", "No upcoming trips yet. Where to next?"),
+                                ("past", "Past trips", "Your finished trips will appear here."),
+                                ("cancelled", "Cancelled", None)] %}
+    {% if groups[kind] or empty %}
+      <h2 class="h4 mt-5 mb-3">{{ title }} <span class="text-muted fw-normal">({{ groups[kind]|length }})</span></h2>
+      <div class="d-grid gap-3">
+        {% for b in groups[kind] %}{{ ticket(b, kind) }}{% else %}<p class="text-muted">{{ empty }}</p>{% endfor %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</section>
+{% endblock %}
