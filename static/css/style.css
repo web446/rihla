@@ -1,0 +1,149 @@
+/* ==========================================================================
+   Rihla: brand styles on top of Bootstrap 5
+   Mood: vintage travel posters x modern travel magazine.
+   All colours are CSS variables, so the palette is changed in ONE place.
+   ========================================================================== */
+:root {
+  --ink: #14213D;          /* midnight blue: nav, headings */
+  --sand: #F7EFE3;         /* warm page background */
+  --sand-deep: #EFE2CF;
+  --terracotta: #E07A5F;   /* primary buttons */
+  --terracotta-dark: #C8644A;
+  --olive: #81B29A;        /* success / confirmed */
+  --olive-dark: #5F9278;
+  --saffron: #F2CC8F;      /* stars, highlights */
+  --charcoal: #2B2B2B;     /* body text */
+  --paper: #FFFDF9;        /* cards */
+  --radius: 18px;
+  --shadow: 0 10px 30px rgba(20, 33, 61, .10);
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  background: var(--sand);
+  color: var(--charcoal);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+main { flex: 1; }   /* pushes the footer to the bottom on short pages */
+
+h1, h2, h3, .display-4, .rihla-logo {
+  font-family: var(--font-display);
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+a { color: var(--terracotta-dark); }
+a:hover { color: var(--ink); }
+
+/* ---------- Buttons ---------- */
+.btn-terracotta, .btn-olive, .btn-outline-ink {
+  border-radius: 999px;
+  font-weight: 600;
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+}
+.btn-terracotta { background: var(--terracotta); color: #fff; border: 0; }
+.btn-terracotta:hover, .btn-terracotta:focus { background: var(--terracotta-dark); color: #fff; }
+.btn-olive { background: var(--olive-dark); color: #fff; border: 0; }
+.btn-olive:hover, .btn-olive:focus { background: #4c7a63; color: #fff; }
+.btn-outline-ink { border: 1.5px solid var(--ink); color: var(--ink); background: transparent; }
+.btn-outline-ink:hover { background: var(--ink); color: var(--sand); }
+
+/* ---------- Navbar ---------- */
+.rihla-nav {
+  background: rgba(247, 239, 227, .92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--sand-deep);
+}
+.rihla-logo { font-size: 1.6rem; font-weight: 700; }
+.logo-mark {
+  display: inline-grid; place-items: center;
+  width: 2rem; height: 2rem; border-radius: 50%;
+  background: var(--terracotta); color: #fff; font-size: 1rem;
+  transform: rotate(-20deg);
+}
+.rihla-nav .nav-link { color: var(--ink); font-weight: 500; }
+.rihla-nav .nav-link:hover { color: var(--terracotta-dark); }
+.nav-hello { font-size: .9rem; color: var(--ink); }
+.role-chip {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
+  padding: .15rem .5rem; border-radius: 999px; margin-left: .25rem;
+  background: var(--saffron); color: var(--ink);
+}
+.role-guide { background: var(--olive); color: #fff; }
+.role-admin { background: var(--ink); color: var(--sand); }
+
+/* ---------- Small labels above headings ---------- */
+.poster-kicker {
+  font-size: .78rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .14em; color: var(--terracotta-dark); margin-bottom: .5rem;
+}
+
+/* ---------- Auth pages: poster on the left, form on the right ---------- */
+.auth-wrap { padding: 3rem 0; }
+.auth-card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.auth-poster {
+  flex-direction: column; justify-content: space-between;
+  padding: 2.5rem; color: var(--sand);
+  /* a "sunset over the sea" poster made only with CSS gradients */
+  background:
+    /* the sun sits ON the horizon line (58%), below the text */
+    radial-gradient(circle at 72% 58%, var(--saffron) 0 52px, transparent 53px),
+    linear-gradient(180deg, var(--terracotta) 0%, #E9A178 57.9%, var(--ink) 58%, #22335A 100%);
+}
+.auth-poster-olive {
+  background:
+    radial-gradient(circle at 70% 68%, var(--saffron) 0 52px, transparent 53px),
+    linear-gradient(160deg, var(--olive-dark) 0%, var(--olive) 50%, var(--ink) 100%);
+}
+.auth-poster h2 { color: #fff; font-size: 2rem; }
+.auth-poster .poster-kicker { color: var(--sand); opacity: .85; }
+.ticket-stub {
+  border: 2px dashed rgba(247, 239, 227, .6);
+  border-radius: 10px; padding: .6rem 1rem;
+  font-family: ui-monospace, Consolas, monospace; letter-spacing: .2em; font-size: .8rem;
+  text-align: center;
+}
+.auth-form { padding: 2.5rem; }
+.form-section {
+  font-size: 1rem; font-family: var(--font-body); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .1em; color: var(--olive-dark);
+  margin: 1.5rem 0 1rem; border-bottom: 1px solid var(--sand-deep); padding-bottom: .4rem;
+}
+.form-control, .form-select { border-radius: 12px; padding: .65rem .9rem; border-color: #DCCDB7; }
+.form-control:focus, .form-select:focus {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 .2rem rgba(224, 122, 95, .2);
+}
+
+/* ---------- Generic cards ---------- */
+.placeholder-card {
+  background: var(--paper); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 3rem; border-left: 8px solid var(--saffron);
+}
+.error-stamp {
+  display: inline-grid; place-items: center;
+  width: 9rem; height: 9rem; border-radius: 50%;
+  border: 5px double var(--terracotta); color: var(--terracotta);
+  font-family: var(--font-display); font-size: 3rem; font-weight: 700;
+  transform: rotate(-12deg);
+}
+.hero-temp { background: linear-gradient(180deg, var(--sand) 0%, var(--sand-deep) 100%); }
+
+/* ---------- Footer ---------- */
+.rihla-footer { background: var(--ink); color: var(--sand); padding: 1.5rem 0; margin-top: 3rem; }
+
+/* ---------- Phones ---------- */
+@media (max-width: 576px) {
+  .auth-wrap { padding: 1rem 0; }
+  .auth-form { padding: 1.5rem; }
+  .placeholder-card { padding: 1.75rem; }
+}

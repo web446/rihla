@@ -1,0 +1,23 @@
+{#
+  Reusable form field (a Jinja "macro" = a function that returns HTML).
+  Usage:  {% from "partials/forms.html" import field %}
+          {{ field("email", "Email", errors, values, type="email", required=true) }}
+  It shows the label, the input with the old value, and the server's error message.
+  Jinja escapes every {{ value }} automatically, which blocks HTML/JS injection (XSS).
+#}
+{% macro field(name, label, errors, values, type="text", required=false, attrs={}, help=none) %}
+  <div class="mb-3">
+    <label for="f-{{ name }}" class="form-label">{{ label }}</label>
+    <input id="f-{{ name }}" name="{{ name }}" type="{{ type }}"
+           class="form-control {% if errors.get(name) %}is-invalid{% endif %}"
+           {% if type != "password" %}value="{{ values.get(name, '') }}"{% endif %}
+           {% if required %}required{% endif %}
+           {% for key, val in attrs.items() %}{{ key }}="{{ val }}" {% endfor %}>
+    {% if errors.get(name) %}<div class="invalid-feedback">{{ errors[name] }}</div>
+    {% elif help %}<div class="form-text">{{ help }}</div>{% endif %}
+  </div>
+{% endmacro %}
+
+{% macro form_error(errors) %}
+  {% if errors.get("form") %}<div class="alert alert-danger">{{ errors["form"] }}</div>{% endif %}
+{% endmacro %}

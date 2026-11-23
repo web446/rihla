@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% from "partials/forms.html" import field, form_error %}
+{% block title %}Become a guide{% endblock %}
+
+{% block content %}
+<section class="auth-wrap container">
+  <div class="row g-0 auth-card">
+    <div class="col-lg-4 auth-poster auth-poster-olive d-none d-lg-flex">
+      <div>
+        <p class="poster-kicker">Local guides</p>
+        <h2>Show the world your city.</h2>
+        <p>Set your own daily price. Our team reviews every profile before it goes live, so travelers can trust every guide on Rihla.</p>
+      </div>
+      <div class="ticket-stub">APPROVED GUIDES ONLY</div>
+    </div>
+
+    <div class="col-lg-8 auth-form">
+      <h1 class="h2">Apply as a guide</h1>
+      <p class="text-muted">Your profile stays <strong>pending</strong> until an admin approves it.</p>
+      {{ form_error(errors) }}
+
+      <form method="post" action="{{ url_for('auth.register_guide') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <h2 class="form-section">Your account</h2>
+        <div class="row">
+          <div class="col-md-6">{{ field("full_name", "Full name", errors, values, required=true, attrs={"maxlength": 100}) }}</div>
+          <div class="col-md-6">{{ field("email", "Email", errors, values, type="email", required=true) }}</div>
+          <div class="col-md-6">{{ field("password", "Password", errors, values, type="password", required=true,
+                                          attrs={"minlength": 8, "autocomplete": "new-password"}, help="8+ characters, with a letter and a number.") }}</div>
+          <div class="col-md-6">{{ field("confirm_password", "Confirm password", errors, values, type="password", required=true,
+                                          attrs={"minlength": 8, "autocomplete": "new-password"}) }}</div>
+        </div>
+
+        <h2 class="form-section">Your guiding</h2>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="f-country_id" class="form-label">Country</label>
+            <select id="f-country_id" name="country_id" required
+                    class="form-select {% if errors.get('country_id') %}is-invalid{% endif %}">
+              <option value="">Choose…</option>
+              {% for c in countries %}
+                <option value="{{ c.id }}" {% if values.get('country_id') == c.id %}selected{% endif %}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+            {% if errors.get('country_id') %}<div class="invalid-feedback">{{ errors['country_id'] }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            {{ field("price_per_day", "Price per day (USD)", errors, {"price_per_day": values.get("price", "")},
+                     type="number", required=true, attrs={"min": 10, "max": 1000, "step": "1"}) }}
+          </div>
+        </div>
+        {{ field("languages", "Languages you speak", errors, values, required=true,
+                 attrs={"placeholder": "English, Arabic, French", "maxlength": 150}, help="Separate with commas.") }}
+
+        <div class="mb-3">
+          <label for="f-bio" class="form-label">Short bio</label>
+          <textarea id="f-bio" name="bio" rows="4" required minlength="30" maxlength="1000"
+                    class="form-control {% if errors.get('bio') %}is-invalid{% endif %}"
+                    placeholder="What makes your tours special?">{{ values.get('bio', '') }}</textarea>
+          {% if errors.get('bio') %}<div class="invalid-feedback">{{ errors['bio'] }}</div>{% endif %}
+        </div>
+
+        <button class="btn btn-olive w-100 py-2" type="submit">Send my application</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

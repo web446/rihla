@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+{# Temporary homepage for Step 2; the full design comes in Step 3. #}
+<section class="hero-temp">
+  <div class="container py-5">
+    <p class="poster-kicker">Flights from Beirut · Stays · Guides · Food</p>
+    <h1 class="display-4">From the first click<br>to the last dinner.</h1>
+    {% if g.user %}
+      <p class="lead">You are logged in as <strong>{{ g.user.email }}</strong> ({{ g.user.role }}).</p>
+    {% else %}
+      <p class="lead">Log in or sign up to start planning.</p>
+      <a class="btn btn-terracotta btn-lg" href="{{ url_for('auth.register') }}">Start my trip</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
