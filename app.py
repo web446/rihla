@@ -7,10 +7,11 @@ Run (inside the activated .venv):
 On Render:  gunicorn app:app
 """
 import click
-from flask import Flask
+from flask import Flask, render_template
 
 from config import Config
 from extensions import db
+from security import check_csrf, csrf_token, load_current_user
 from services.pricing import format_money
 
 
@@ -24,14 +25,39 @@ def create_app():
 
     # {{ 12345|money }} in a template shows "$123.45"
     app.jinja_env.filters["money"] = format_money
+    # {{ csrf_token() }} can be used in every template (hidden field in forms)
+    app.jinja_env.globals["csrf_token"] = csrf_token
 
-    @app.route("/")
-    def home():
-        # Temporary page for Step 1; replaced by the real homepage in Step 3.
-        return "<h1>Rihla is running.</h1><p>Database step done. Pages come next.</p>"
+    # Runs before every request, in this order:
+    app.before_request(load_current_user)   # g.user = logged-in user or None
+    app.before_request(check_csrf)          # refuse forms without a valid token
 
+    # Blueprints = groups of routes (Chapter 9)
+    from blueprints.admin import admin_bp
+    from blueprints.auth import auth_bp
+    from blueprints.guide import guide_bp
+    from blueprints.public import public_bp
+    from blueprints.traveler import traveler_bp
+    for blueprint in (public_bp, auth_bp, traveler_bp, guide_bp, admin_bp):
+        app.register_blueprint(blueprint)
+
+    register_error_pages(app)
     register_cli_commands(app)
     return app
+
+
+def register_error_pages(app):
+    """Friendly pages instead of the default white error screens."""
+    messages = {
+        400: ("Something went wrong", "That request was not valid."),
+        403: ("Passport control", "Your account does not have access to this page."),
+        404: ("Off the map", "We couldn't find that page."),
+    }
+    for code, (title, default_text) in messages.items():
+        def handler(error, code=code, title=title, default_text=default_text):
+            text = getattr(error, "description", None) if code == 400 else default_text
+            return render_template("error.html", code=code, title=title, text=text or default_text), code
+        app.register_error_handler(code, handler)
 
 
 def register_cli_commands(app):
