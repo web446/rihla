@@ -99,6 +99,20 @@ def validate_guide_profile(form, country_ids):
     return errors, cleaned
 
 
+def validate_review(form):
+    errors = {}
+    cleaned = {"comment": _text(form, "comment")}
+    try:
+        cleaned["rating"] = int(form.get("rating", ""))
+    except ValueError:
+        cleaned["rating"] = None
+    if cleaned["rating"] not in (1, 2, 3, 4, 5):
+        errors["rating"] = "Choose between 1 and 5 stars."
+    if len(cleaned["comment"]) < 10 or len(cleaned["comment"]) > 1000:
+        errors["comment"] = "Tell other travelers a little more (10-1000 characters)."
+    return errors, cleaned
+
+
 def validate_guide_registration(form, country_ids):
     """Guide sign-up = account fields + guide profile fields."""
     errors, cleaned = validate_registration(form)

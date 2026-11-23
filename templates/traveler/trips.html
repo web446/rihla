@@ -23,7 +23,13 @@
       <ul class="tt-items">
         {% for item in b.items %}
           <li>
-            <span>{{ item.title }} <span class="text-muted small">· {{ item.quantity }} {{ item.unit }}</span></span>
+            <span>{{ item.title }} <span class="text-muted small">· {{ item.quantity }} {{ item.unit }}</span>
+              {% if item.review %}
+                <span class="rated">You rated {{ "★" * item.review.rating }}</span>
+              {% elif can_review(item) %}
+                <a class="btn btn-sm btn-olive ms-1 py-0" href="{{ url_for('traveler.review', item_id=item.id) }}">★ Rate your guide</a>
+              {% endif %}
+            </span>
             <span>{{ item.line_total_cents|money }}</span>
           </li>
         {% endfor %}

@@ -9,10 +9,12 @@ from datetime import date
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 
 from extensions import db
-from models import Booking
+from models import Booking, BookingItem
 from security import is_safe_next_url, role_required
 from services import basket
 from services.booking import BookingError, cancel_booking, create_booking
+from services.reviews import ReviewError, can_review, create_review, review_problem
+from validators import validate_review
 
 traveler_bp = Blueprint("traveler", __name__, url_prefix="/me")
 
@@ -147,7 +149,33 @@ def trips():
         "cancelled": [b for b in bookings if b.status == "cancelled"],
     }
     return render_template("traveler/trips.html", groups=groups, today=today,
-                           new_id=request.args.get("new", type=int))
+                           new_id=request.args.get("new", type=int),
+                           can_review=lambda item: can_review(item, g.user))
+
+
+@traveler_bp.route("/trips/review/<int:item_id>", methods=["GET", "POST"])
+@role_required("traveler")
+def review(item_id):
+    """Rate the guide of a finished trip (stars + comment)."""
+    item = db.session.get(BookingItem, item_id)
+    problem = review_problem(item, g.user)
+    if problem:
+        flash(problem, "warning")
+        return redirect(url_for("traveler.trips"))
+
+    if request.method == "GET":
+        return render_template("traveler/review.html", item=item, errors={}, values={})
+
+    errors, cleaned = validate_review(request.form)
+    if errors:
+        return render_template("traveler/review.html", item=item, errors=errors, values=cleaned), 400
+    try:
+        create_review(item.id, g.user, cleaned["rating"], cleaned["comment"])
+    except ReviewError as error:
+        flash(str(error), "warning")
+        return redirect(url_for("traveler.trips"))
+    flash(f"Thanks! Your review of {item.guide.user.full_name} is live.", "success")
+    return redirect(url_for("traveler.trips"))
 
 
 @traveler_bp.route("/trips/<int:booking_id>/cancel", methods=["POST"])

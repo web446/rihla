@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block title %}Review {{ item.guide.user.full_name }}{% endblock %}
+
+{% block content %}
+<section class="container section" style="max-width: 720px">
+  <a class="back-link dark" href="{{ url_for('traveler.trips') }}">← My Trips</a>
+  <div class="info-card mt-3">
+    <p class="poster-kicker">Rate your guide</p>
+    <h1 class="h2">How was {{ item.guide.user.full_name.split()[0] }}?</h1>
+    <p class="text-muted">Trip #{{ item.booking.id }} · {{ item.guide.country.name }} ·
+      {{ item.booking.start_date.strftime('%d %b') }}–{{ item.booking.end_date.strftime('%d %b %Y') }}</p>
+
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      {# Star picker: 5 radio buttons styled as stars (pure CSS, works without JavaScript).
+         They are written 5 -> 1 and displayed reversed, so "hover a star = light it and
+         every star before it" can be done with the CSS ~ selector. #}
+      <fieldset class="mb-3">
+        <legend class="form-label fs-6">Your rating</legend>
+        <div class="star-picker">
+          {% for n in [5, 4, 3, 2, 1] %}
+            <input type="radio" id="star{{ n }}" name="rating" value="{{ n }}" required
+                   {% if values.get('rating') == n %}checked{% endif %}>
+            <label for="star{{ n }}" title="{{ n }} star{{ 's' if n > 1 }}">★</label>
+          {% endfor %}
+        </div>
+        {% if errors.get('rating') %}<div class="text-danger small">{{ errors['rating'] }}</div>{% endif %}
+      </fieldset>
+
+      <div class="mb-3">
+        <label for="f-comment" class="form-label">Your review</label>
+        <textarea id="f-comment" name="comment" rows="4" required minlength="10" maxlength="1000"
+                  class="form-control {% if errors.get('comment') %}is-invalid{% endif %}"
+                  placeholder="What did you love? Anything other travelers should know?">{{ values.get('comment', '') }}</textarea>
+        {% if errors.get('comment') %}<div class="invalid-feedback">{{ errors['comment'] }}</div>{% endif %}
+      </div>
+
+      <button class="btn btn-terracotta" type="submit">Publish review</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
