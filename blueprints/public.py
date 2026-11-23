@@ -1,9 +1,9 @@
 """Pages anyone can see (no login needed): homepage, countries, guides."""
-from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, abort, g, jsonify, redirect, render_template, request, url_for
 
 from extensions import db
 from models import Flight, GuideProfile, Review, Stay
-from services import search
+from services import basket, search
 from services.pricing import dollars_to_cents, estimate_trip_cost, format_money
 
 public_bp = Blueprint("public", __name__)
@@ -16,7 +16,9 @@ POSTER_ICONS = {"italy": "🏛️", "japan": "⛩️", "greece": "🏺", "turkey
 @public_bp.app_context_processor
 def inject_globals():
     """Variables available in EVERY template."""
-    return {"poster_icons": POSTER_ICONS, "month_names": search.MONTH_NAMES}
+    is_traveler = g.get("user") is not None and g.user.role == "traveler"
+    return {"poster_icons": POSTER_ICONS, "month_names": search.MONTH_NAMES,
+            "basket_count": basket.count() if is_traveler else 0}
 
 
 def int_arg(name, low, high, default=None):

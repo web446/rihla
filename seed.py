@@ -361,32 +361,32 @@ def seed_database():
     b1 = create_booking(lara, [
         {"type": "stay", "id": stay["Hotel Santa Maria"].id, "quantity": 4},
         {"type": "guide", "id": marco.id, "quantity": 2},
-    ], date(2026, 9, 10), date(2026, 9, 14))
+    ], date(2026, 9, 10), date(2026, 9, 14), allow_past=True)
     _review(b1, marco, lara, 5, "Marco took us under the Colosseum and to a tiny trattoria we'd never have found. Perfect!")
 
     b2 = create_booking(karim, [
         {"type": "stay", "id": stay["Trastevere Rooftop Loft"].id, "quantity": 3},
         {"type": "guide", "id": marco.id, "quantity": 1},
-    ], date(2026, 10, 2), date(2026, 10, 5))
+    ], date(2026, 10, 2), date(2026, 10, 5), allow_past=True)
     _review(b2, marco, karim, 4, "Very knowledgeable, a bit fast-paced but we saw everything.")
 
     b3 = create_booking(karim, [
         {"type": "stay", "id": stay["Herodion Hotel"].id, "quantity": 3},
         {"type": "guide", "id": eleni.id, "quantity": 1},
-    ], date(2026, 6, 12), date(2026, 6, 15))
+    ], date(2026, 6, 12), date(2026, 6, 15), allow_past=True)
     _review(b3, eleni, karim, 5, "Eleni made the Acropolis come alive. Book her early!")
 
     b4 = create_booking(lara, [
         {"type": "stay", "id": stay["Sirkeci Mansion"].id, "quantity": 4},
         {"type": "guide", "id": elif_.id, "quantity": 2},
-    ], date(2026, 5, 3), date(2026, 5, 7))
+    ], date(2026, 5, 3), date(2026, 5, 7), allow_past=True)
     _review(b4, elif_, lara, 4, "Great food tour on the Asian side. The ferry ride was a highlight.")
 
     # The test traveler's past trip: NOT reviewed yet, so you can demo the review form.
     create_booking(maya, [
         {"type": "stay", "id": stay["Cappadocia Cave Suite"].id, "quantity": 3},
         {"type": "guide", "id": mehmet.id, "quantity": 2},
-    ], date(2026, 10, 20), date(2026, 10, 23))
+    ], date(2026, 10, 20), date(2026, 10, 23), allow_past=True)
 
     # The test traveler's upcoming trip: includes a flight, so seats go down by 2.
     tokyo = flight[("EK958", date(2027, 4, 10))]

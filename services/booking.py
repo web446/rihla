@@ -56,7 +56,34 @@ def _reserve_seats(flight_id, seats):
         raise BookingError("Sorry, there are not enough seats left on that flight.")
 
 
-def create_booking(traveler, items, start_date, end_date, source="web"):
+def _check_trip_rules(loaded, start_date, end_date, allow_past):
+    """Business rules for a whole trip. `loaded` = [(type, object, quantity, unit)].
+
+    These live HERE (not in the page) so the checkout page and the AI agent
+    are held to exactly the same rules.
+    """
+    if not allow_past and start_date <= date.today():
+        raise BookingError("Trips must start after today.")
+    types = [item_type for item_type, *_ in loaded]
+    if len(types) != len(set(types)):
+        raise BookingError("A trip can have one flight, one stay and one guide.")
+    if len({target.country_id for _, target, _, _ in loaded}) > 1:
+        raise BookingError("Everything in one trip must be in the same country.")
+
+    nights = (end_date - start_date).days
+    for item_type, target, quantity, _ in loaded:
+        if item_type == "flight":
+            if (target.depart_date, target.return_date) != (start_date, end_date):
+                raise BookingError("The trip dates must match the flight dates.")
+            if quantity > 9:
+                raise BookingError("You can book up to 9 seats at a time.")
+        elif item_type == "stay" and quantity > max(nights, 1):
+            raise BookingError(f"This trip only has {nights} night(s).")
+        elif item_type == "guide" and quantity > nights + 1:
+            raise BookingError(f"This trip only has {nights + 1} day(s) for a guide.")
+
+
+def create_booking(traveler, items, start_date, end_date, source="web", allow_past=False):
     """Create one confirmed booking (a trip) and return it.
 
     traveler   : the logged-in User (always taken from the session, never from a form)
@@ -65,6 +92,7 @@ def create_booking(traveler, items, start_date, end_date, source="web"):
                   {"type": "stay",   "id": 7, "quantity": 5},   # 5 nights
                   {"type": "guide",  "id": 2, "quantity": 2}]   # 2 days
     source     : "web" (checkout page) or "agent" (AI travel agent)
+    allow_past : only the seed data uses True, to create trips that already happened
 
     Either everything is saved, or nothing is (on any error we roll back).
     """
@@ -76,22 +104,28 @@ def create_booking(traveler, items, start_date, end_date, source="web"):
         raise BookingError("Please choose valid trip dates.")
 
     rate = get_commission_rate()
-    booking = Booking(traveler=traveler, start_date=start_date, end_date=end_date,
+    # traveler_id (not traveler=...) so a refused booking is never attached to the user object
+    booking = Booking(traveler_id=traveler.id, start_date=start_date, end_date=end_date,
                       commission_rate=rate, status="confirmed", source=source,
                       total_cents=0, commission_cents=0, provider_cents=0)
 
     try:
-        db.session.add(booking)  # part of the current transaction until commit()
+        # 1. Load everything and check the rules BEFORE changing anything.
+        loaded = []
         for spec in items:
             item_type = spec.get("type")
-            item_id = int(spec.get("id"))
             quantity = int(spec.get("quantity", 1))
             if quantity < 1 or quantity > 60:
                 raise BookingError("Quantities must be between 1 and 60.")
+            target, unit_cents = _load_item(item_type, int(spec.get("id")))
+            loaded.append((item_type, target, quantity, unit_cents))
+        _check_trip_rules(loaded, start_date, end_date, allow_past)
 
-            target, unit_cents = _load_item(item_type, item_id)
+        # 2. Save: reserve seats, price every line, add up the totals.
+        db.session.add(booking)  # part of the current transaction until commit()
+        for item_type, target, quantity, unit_cents in loaded:
             if item_type == "flight":
-                _reserve_seats(item_id, quantity)
+                _reserve_seats(target.id, quantity)
 
             # The commission is calculated per line, then added up.
             line_total = unit_cents * quantity

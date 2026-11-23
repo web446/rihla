@@ -240,6 +240,15 @@ class Booking(db.Model):
     traveler = db.relationship("User", back_populates="bookings")
     items = db.relationship("BookingItem", back_populates="booking", cascade="all, delete-orphan")
 
+    @property
+    def country(self):
+        """The trip's country (every item of a trip is in the same country)."""
+        return self.items[0].target.country if self.items else None
+
+    @property
+    def nights(self):
+        return (self.end_date - self.start_date).days
+
 
 class BookingItem(db.Model):
     """One line of a booking. Exactly ONE of flight_id / stay_id / guide_id is set.
@@ -276,6 +285,23 @@ class BookingItem(db.Model):
     stay = db.relationship("Stay")
     guide = db.relationship("GuideProfile")
     review = db.relationship("Review", back_populates="booking_item", uselist=False)
+
+    @property
+    def target(self):
+        """The booked flight, stay or guide, whichever this line is."""
+        return self.flight or self.stay or self.guide
+
+    @property
+    def title(self):
+        if self.item_type == "flight":
+            return f"{self.flight.airline} {self.flight.flight_number} · Beirut → {self.flight.to_city}"
+        if self.item_type == "stay":
+            return f"{self.stay.name}, {self.stay.city}"
+        return f"Guide: {self.guide.user.full_name}"
+
+    @property
+    def unit(self):
+        return {"flight": "seat(s)", "stay": "night(s)", "guide": "day(s)"}[self.item_type]
 
 
 class Review(db.Model):
