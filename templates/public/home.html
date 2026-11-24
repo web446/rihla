@@ -115,6 +115,8 @@
          trip with the total price, and books it the moment you say "Confirm".</p>
       {% if not g.user %}
         <a href="{{ url_for('auth.register') }}" class="btn btn-terracotta">Create a free account to chat</a>
+      {% elif g.user.role == 'traveler' %}
+        <a href="#" data-open-chat class="btn btn-terracotta">✈ Chat with Rihla now</a>
       {% endif %}
     </div>
     <div class="col-lg-7">
