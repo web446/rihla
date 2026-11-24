@@ -268,10 +268,10 @@ rihla/
 Requirements: **Python 3.12** (on Windows, the `py` launcher) and Git.
 
 ```powershell
-git clone https://github.com/<your-username>/<your-repo>.git
+git clone https://github.com/web446/rihla.git
 ```
 ```powershell
-cd <your-repo>
+cd rihla
 ```
 ```powershell
 py -m venv .venv
