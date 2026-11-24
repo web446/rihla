@@ -19,6 +19,7 @@ cost of the trip. Then book it by clicking, or by chatting with an **AI travel a
 - [Project structure](#project-structure)
 - [Setup and run locally](#setup-and-run-locally)
 - [Test logins](#test-logins)
+- [Automated tests](#automated-tests)
 - [Security](#security)
 - [Screenshots](#screenshots)
 - [Credits and sources](#credits-and-sources)
@@ -258,6 +259,7 @@ rihla/
 ├─ templates/           Jinja pages (layout.html + one folder per role)
 ├─ static/              css/style.css, js/main.js, js/calculator.js, js/chat.js
 ├─ database/schema.sql  exported SQL schema
+├─ tests/               automated tests (Python's built-in unittest)
 └─ docs/                PLAN.md (design plan), VISA_RESEARCH.md (sources), screenshots/
 ```
 
@@ -308,6 +310,32 @@ Local, fake accounts created by `init-db`:
 | Traveler | `traveler@rihla.test` | `Traveler123!` | Book a trip, cancel it, rate the guide of the past Cappadocia trip, chat with the agent |
 | Guide | `guide@rihla.test` | `Guide123!` | Aram Petrosyan (Armenia): earnings, reviews, edit profile |
 | Admin | `admin@rihla.test` | `Admin123!` | Approve the pending guides (Nino, Daniel), edit content, change the commission |
+
+---
+
+## Automated tests
+
+67 tests check the main rules of the site. They use Python's built-in **unittest**, so nothing extra
+has to be installed. From the `rihla` folder:
+
+```powershell
+.venv\Scripts\python -m unittest -v
+```
+
+Each test starts from a fresh copy of the sample data in a **temporary database**, so the tests can run
+in any order and never change `instance/rihla.db`. The AI agent is always tested in demo mode (no API key needed).
+
+| File | What it checks |
+|---|---|
+| `tests/test_booking_rules.py` | Password hashing, commission maths, no overbooking, cancelling gives seats back, invalid trips refused |
+| `tests/test_auth.py` | Login, sign-up, guide sign-up (pending), roles (403), CSRF, logout is a POST, no open redirect |
+| `tests/test_public_pages.py` | Every country page opens, trip-cost estimate, search filters, pending guides hidden |
+| `tests/test_basket_checkout.py` | Basket total, simulated checkout, booking amounts, My Trips, cancel, privacy between travelers |
+| `tests/test_reviews_and_guides.py` | Rating a guide once (past trips only), guide earnings, admin approves / rejects guides |
+| `tests/test_admin.py` | Admin pages, adding and editing content, seat rules, delete rules, commission setting |
+| `tests/test_agent.py` | AI agent answers, booking only after Confirm, cancelling, users only see their own chats, rate limit |
+
+The sample data uses fixed dates (flights from December 2026 to 2027), so the tests are meant to run before those flights leave.
 
 ---
 
