@@ -161,7 +161,8 @@ provider_amount   = line_total − commission_amount
 
 ### Create + seed (the Chapter 9 pattern: configure → create → seed)
 - `flask --app app init-db` → `db.create_all()` + inserts seed data (custom Flask CLI command).
-- Seed: **Italy, Japan, Greece, Turkey, Egypt, Thailand** with real monuments, dishes, restaurants, stays, flights from Beirut, approved + pending guides, past and upcoming bookings, reviews, and one test account per role.
+- Seed: **Turkey, Armenia, Egypt, Jordan, Georgia, Malaysia**: countries a Lebanese passport can enter with no visa arranged in advance (changed from Italy, Japan, Greece and Thailand, which need visas; see `docs/VISA_RESEARCH.md`). Each has real monuments, dishes, restaurants, stays, flights from Beirut, approved + pending guides, past and upcoming bookings, reviews, and one test account per role.
+- `countries` also stores the entry rules for a Lebanese passport: `entry_type` (visa_free / visa_on_arrival / conditional / evisa), `max_stay`, `entry_notes`, `popularity` (1-5) and `popularity_note`.
 - `database/schema.sql` is exported from the real SQLite file so the instructor can read the tables as SQL.
 
 ---

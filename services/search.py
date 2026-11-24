@@ -96,19 +96,24 @@ def guides_with_ratings(country=None, language=None, max_price_cents=None, limit
 # ---------------------------------------------------------------------------
 # Country search (homepage widget, countries page, AI "somewhere warm in March")
 # ---------------------------------------------------------------------------
-def search_countries(month=None, max_budget_cents=None, days=7, interests=None, travelers=1):
+def search_countries(month=None, max_budget_cents=None, days=7, interests=None, travelers=1,
+                     no_visa_only=False):
     """Countries matching the filters, each with an estimated trip price.
 
     The estimate = cheapest upcoming flight (in that month if given)
                  + cheapest stay x nights + typical daily spending x days.
     A country with no flight in the chosen month is still shown (without a
     flight price) unless a budget is set, because then we can't promise it fits.
+    no_visa_only keeps countries a Lebanese passport can enter with no visa
+    arranged in advance (visa-free or visa on arrival).
     """
     interests = [i.lower() for i in (interests or [])]
     nights = max(days - 1, 1)
     results = []
     for country in all_countries():
         if interests and not set(interests) & set(country.tag_list()):
+            continue
+        if no_visa_only and not country.no_visa_in_advance:
             continue
         flight = cheapest_flight(country, month)
         stays = search_stays(country)
@@ -122,6 +127,6 @@ def search_countries(month=None, max_budget_cents=None, days=7, interests=None, 
             "estimate": estimate,
             "warm": month in country.warm_month_list() if month else None,
         })
-    # Warm countries first (when a month is chosen), then the cheapest
-    results.sort(key=lambda r: (r["warm"] is False, r["estimate"]["total_cents"]))
+    # Warm countries first (when a month is chosen), then the most popular with Lebanese, then the cheapest
+    results.sort(key=lambda r: (r["warm"] is False, -r["country"].popularity, r["estimate"]["total_cents"]))
     return results

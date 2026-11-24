@@ -10,7 +10,7 @@ floats can give rounding errors like 0.1 + 0.2 = 0.30000000000000004.
 That matters when we split every booking into commission + provider share.
 Columns that hold money end in "_cents" so this is never confusing.
 """
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import CheckConstraint, func
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -24,6 +24,14 @@ GUIDE_STATUSES = ("pending", "approved", "rejected")
 STAY_TYPES = ("hotel", "apartment")
 PRICE_RANGES = ("$", "$$", "$$$")
 ITEM_TYPES = ("flight", "stay", "guide")
+# How a Lebanese passport holder enters a country
+ENTRY_TYPES = ("visa_free", "visa_on_arrival", "conditional", "evisa")
+ENTRY_LABELS = {
+    "visa_free": "Visa-free",
+    "visa_on_arrival": "Visa on arrival",
+    "conditional": "Visa-free (conditions)",
+    "evisa": "e-Visa online",
+}
 
 
 def now():
@@ -104,6 +112,10 @@ class GuideProfile(db.Model):
 # --------------------------------------------------------------------------
 class Country(db.Model):
     __tablename__ = "countries"
+    __table_args__ = (
+        CheckConstraint(f"entry_type IN {ENTRY_TYPES}", name="ck_country_entry"),
+        CheckConstraint("popularity BETWEEN 1 AND 5", name="ck_country_popularity"),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
@@ -120,12 +132,34 @@ class Country(db.Model):
     avg_daily_spend_cents = db.Column(db.Integer, nullable=False, default=0)
     hero_image = db.Column(db.String(255))
 
+    # --- Entry rules for an ordinary LEBANESE passport (Rihla's travelers fly from Beirut) ---
+    entry_type = db.Column(db.String(20), nullable=False, default="visa_free")   # see ENTRY_TYPES
+    max_stay = db.Column(db.String(60), nullable=False, default="")             # "90 days in any 180"
+    entry_notes = db.Column(db.Text, nullable=False, default="")                # conditions to know
+    # How popular the country is with Lebanese travelers, 1-5 stars, and why
+    popularity = db.Column(db.Integer, nullable=False, default=3)
+    popularity_note = db.Column(db.String(200), nullable=False, default="")
+
     # cascade="all, delete-orphan": deleting a country also deletes its children.
     monuments = db.relationship("Monument", back_populates="country", cascade="all, delete-orphan")
     restaurants = db.relationship("Restaurant", back_populates="country", cascade="all, delete-orphan")
     stays = db.relationship("Stay", back_populates="country", cascade="all, delete-orphan")
     flights = db.relationship("Flight", back_populates="country", cascade="all, delete-orphan")
     guides = db.relationship("GuideProfile", back_populates="country")
+
+    @property
+    def entry_label(self):
+        return ENTRY_LABELS.get(self.entry_type, self.entry_type)
+
+    @property
+    def no_visa_in_advance(self):
+        """True when a Lebanese traveler can just fly in (visa-free or visa on arrival)."""
+        return self.entry_type in ("visa_free", "visa_on_arrival")
+
+    def has_direct_flight(self):
+        """At least one upcoming non-stop flight from Beirut."""
+        today = date.today()
+        return any(f.stops.startswith("Direct") and f.depart_date > today for f in self.flights)
 
     def warm_month_list(self):
         return [int(m) for m in self.warm_months.split(",") if m.strip()]

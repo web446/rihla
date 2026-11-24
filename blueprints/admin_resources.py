@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from extensions import db
-from models import BookingItem, Country, Flight, GuideProfile, Monument, Restaurant, Stay
+from models import ENTRY_TYPES, BookingItem, Country, Flight, GuideProfile, Monument, Restaurant, Stay
 from services.pricing import dollars_to_cents, format_money
 
 
@@ -82,8 +82,16 @@ RESOURCES = {
             Field("tags", "Interests", required=False, help="Comma separated, e.g. beach,food,history"),
             Field("avg_daily_spend_cents", "Daily spend per person ($)", kind="money", min=0, max=2000),
             Field("hero_image", "Photo URL", kind="url", required=False, max_length=255, help="Optional https:// link (e.g. Unsplash)"),
+            # Entry rules for a Lebanese passport
+            Field("entry_type", "Entry with a Lebanese passport", kind="choice", choices=ENTRY_TYPES,
+                  help="visa_free, visa_on_arrival, conditional or evisa"),
+            Field("max_stay", "Maximum stay", max_length=60, help='e.g. "90 days in any 180"'),
+            Field("entry_notes", "Entry conditions", kind="textarea", required=False, max_length=1000),
+            Field("popularity", "Popularity with Lebanese (1-5)", kind="int", min=1, max=5),
+            Field("popularity_note", "Popularity note", required=False, max_length=200),
         ],
-        columns=[("Name", lambda c: c.name), ("Currency", lambda c: c.currency),
+        columns=[("Name", lambda c: c.name), ("Entry", lambda c: f"{c.entry_label} · {c.max_stay}"),
+                 ("Popularity", lambda c: "●" * c.popularity),
                  ("Daily spend", lambda c: format_money(c.avg_daily_spend_cents)),
                  ("Content", lambda c: f"{len(c.monuments)} sights · {len(c.restaurants)} food · {len(c.stays)} stays · {len(c.flights)} flights")],
     ),
@@ -138,7 +146,7 @@ RESOURCES = {
             Field("airline", "Airline", max_length=60),
             Field("flight_number", "Flight number", max_length=12),
             Field("to_city", "Arrival city", max_length=60),
-            Field("stops", "Stops", max_length=60, help='"Direct" or e.g. "via Doha"'),
+            Field("stops", "Stops", max_length=60, help='Start with "Direct" for non-stop (e.g. "Direct (charter)"), or "via Doha"'),
             Field("depart_date", "Departure date", kind="date"),
             Field("return_date", "Return date", kind="date"),
             Field("price_cents", "Price per seat, round trip ($)", kind="money", min=1, max=20000),

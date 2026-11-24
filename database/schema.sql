@@ -26,7 +26,14 @@ CREATE TABLE countries (
 	tags VARCHAR(150) NOT NULL, 
 	avg_daily_spend_cents INTEGER NOT NULL, 
 	hero_image VARCHAR(255), 
+	entry_type VARCHAR(20) NOT NULL, 
+	max_stay VARCHAR(60) NOT NULL, 
+	entry_notes TEXT NOT NULL, 
+	popularity INTEGER NOT NULL, 
+	popularity_note VARCHAR(200) NOT NULL, 
 	PRIMARY KEY (id), 
+	CONSTRAINT ck_country_entry CHECK (entry_type IN ('visa_free', 'visa_on_arrival', 'conditional', 'evisa')), 
+	CONSTRAINT ck_country_popularity CHECK (popularity BETWEEN 1 AND 5), 
 	UNIQUE (name), 
 	UNIQUE (slug)
 );
