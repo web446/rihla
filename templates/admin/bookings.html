@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block title %}Bookings · Admin{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Admin</p>
+  <h1 class="section-title">All bookings</h1>
+  {% include "admin/_nav.html" %}
+
+  <form class="d-flex flex-wrap gap-2 align-items-end mb-3" method="get">
+    <div>
+      <label class="form-label small" for="f-status">Status</label>
+      <select id="f-status" name="status" class="form-select form-select-sm">
+        {% for v, l in [("", "All"), ("confirmed", "Confirmed"), ("cancelled", "Cancelled")] %}
+          <option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="form-label small" for="f-source">Booked via</label>
+      <select id="f-source" name="source" class="form-select form-select-sm">
+        {% for v, l in [("", "All"), ("web", "Website"), ("agent", "AI agent")] %}
+          <option value="{{ v }}" {% if source == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-sm btn-outline-ink" type="submit">Filter</button>
+  </form>
+
+  <div class="rihla-table table-responsive">
+    <table class="table">
+      <thead>
+        <tr><th>#</th><th>Traveler</th><th>Destination</th><th>Dates</th><th>Items</th>
+            <th class="text-end">Total</th><th class="text-end">Rate</th><th class="text-end">Commission</th><th class="text-end">To providers</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for b in rows %}
+          <tr class="{{ 'text-muted' if b.status == 'cancelled' }}">
+            <td>{{ b.id }}</td>
+            <td>{{ b.traveler.full_name }}<div class="small text-muted">{{ b.traveler.email }}</div></td>
+            <td>{{ b.country.name if b.country }}</td>
+            <td class="text-nowrap">{{ b.start_date.strftime('%d %b %Y') }}<div class="small text-muted">{{ b.nights }} nights</div></td>
+            <td class="small">{% for i in b.items %}{{ i.item_type }} ×{{ i.quantity }}{{ ", " if not loop.last }}{% endfor %}</td>
+            <td class="text-end">{{ b.total_cents|money }}</td>
+            <td class="text-end">{{ "%g"|format(b.commission_rate) }}%</td>
+            <td class="text-end">{{ b.commission_cents|money }}</td>
+            <td class="text-end">{{ b.provider_cents|money }}</td>
+            <td>
+              {% if b.status == 'cancelled' %}<span class="badge-cool">Cancelled</span>
+              {% elif b.end_date < today %}<span class="badge-warm">Done</span>
+              {% else %}<span class="badge-ai">Upcoming</span>{% endif %}
+              {% if b.source == 'agent' %}<span title="Booked by the AI agent">🤖</span>{% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="10" class="text-center text-muted py-4">No bookings match.</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="fw-semibold"><td colspan="5">Totals (confirmed only)</td>
+          <td class="text-end">{{ totals.total|money }}</td><td></td>
+          <td class="text-end">{{ totals.commission|money }}</td><td class="text-end">{{ totals.provider|money }}</td><td></td></tr>
+      </tfoot>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block title %}{{ 'Edit' if obj else 'Add' }} {{ resource.singular }} · Admin{% endblock %}
+
+{# ONE form for every content table: the fields are described in admin_resources.py #}
+{% block content %}
+<section class="container section" style="max-width: 860px">
+  <a class="back-link dark" href="{{ url_for('admin.content_list', key=resource.key) }}">← {{ resource.title }}</a>
+  <div class="info-card mt-3">
+    <p class="poster-kicker">Admin · {{ resource.title|lower }}</p>
+    <h1 class="h2 mb-4">{{ 'Edit' if obj else 'Add a' }} {{ resource.singular }}</h1>
+
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="row">
+        {% for f in resource.fields %}
+          {% set value = values.get(f.name, '') %}
+          {% set invalid = 'is-invalid' if errors.get(f.name) else '' %}
+          <div class="{{ 'col-12' if f.kind == 'textarea' else 'col-md-6' }} mb-3">
+            <label class="form-label" for="f-{{ f.name }}">{{ f.label }}{% if not f.required %} <span class="text-muted small">(optional)</span>{% endif %}</label>
+
+            {% if f.kind == 'textarea' %}
+              <textarea id="f-{{ f.name }}" name="{{ f.name }}" rows="4" class="form-control {{ invalid }}"
+                        maxlength="{{ f.max_length }}" {% if f.required %}required{% endif %}>{{ value }}</textarea>
+            {% elif f.kind in ('choice', 'country') %}
+              <select id="f-{{ f.name }}" name="{{ f.name }}" class="form-select {{ invalid }}" {% if f.required %}required{% endif %}>
+                <option value="">Choose…</option>
+                {% if f.kind == 'country' %}
+                  {% for c in countries %}<option value="{{ c.id }}" {% if value|string == c.id|string %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+                {% else %}
+                  {% for choice in f.choices %}<option value="{{ choice }}" {% if value == choice %}selected{% endif %}>{{ choice }}</option>{% endfor %}
+                {% endif %}
+              </select>
+            {% else %}
+              {% set input_type = {'money': 'number', 'int': 'number', 'float': 'number', 'date': 'date', 'url': 'url'}.get(f.kind, 'text') %}
+              <input id="f-{{ f.name }}" name="{{ f.name }}" type="{{ input_type }}" value="{{ value }}"
+                     class="form-control {{ invalid }}" {% if f.required %}required{% endif %}
+                     {% if f.kind in ('text', 'slug', 'url', 'months') %}maxlength="{{ f.max_length }}"{% endif %}
+                     {% if f.kind == 'money' %}step="0.01"{% elif f.kind == 'float' %}step="0.1"{% endif %}
+                     {% if f.min is not none %}min="{{ f.min }}"{% endif %} {% if f.max is not none %}max="{{ f.max }}"{% endif %}>
+            {% endif %}
+
+            {% if errors.get(f.name) %}<div class="invalid-feedback">{{ errors[f.name] }}</div>
+            {% elif f.help %}<div class="form-text">{{ f.help }}</div>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      {% if resource.key == 'flights' and obj %}
+        <p class="small text-muted">{{ obj.seats_total - obj.seats_available }} seat(s) already booked; available seats are adjusted automatically.</p>
+      {% endif %}
+      <button class="btn btn-terracotta" type="submit">Save {{ resource.singular }}</button>
+      <a class="btn btn-link" href="{{ url_for('admin.content_list', key=resource.key) }}">Cancel</a>
+    </form>
+  </div>
+</section>
+{% endblock %}

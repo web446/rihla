@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+{% block title %}Admin dashboard{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Admin · control tower</p>
+  <h1 class="section-title">Dashboard</h1>
+  {% include "admin/_nav.html" %}
+
+  {% if stats.pending_guides %}
+    <div class="status-banner status-pending">
+      <span class="big" aria-hidden="true">⏳</span>
+      <div><strong>{{ stats.pending_guides }} guide(s) waiting for approval.</strong>
+        <a href="{{ url_for('admin.guides') }}">Review them now →</a></div>
+    </div>
+  {% endif %}
+
+  {# ----- Money ----- #}
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="stat-card stat-highlight">
+      <div class="stat-label">Commission earned</div><div class="stat-value">{{ stats.commission|money }}</div>
+      <div class="small">current rate {{ "%g"|format(stats.rate) }}% · <a href="{{ url_for('admin.settings') }}">change</a></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card">
+      <div class="stat-label">Total sales</div><div class="stat-value">{{ stats.revenue|money }}</div>
+      <div class="small text-muted">paid by travelers</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card">
+      <div class="stat-label">Owed to providers</div><div class="stat-value">{{ stats.providers|money }}</div>
+      <div class="small text-muted">airlines, hotels, guides</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card">
+      <div class="stat-label">Bookings</div><div class="stat-value">{{ stats.count }}</div>
+      <div class="small text-muted">{{ stats.cancelled }} cancelled · 🤖 {{ by_source.get('agent', 0) }} by AI</div></div></div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    {# ----- Commission by product: simple CSS bar chart ----- #}
+    <div class="col-lg-6">
+      <div class="info-card h-100">
+        <h2 class="h5">Commission by product</h2>
+        {% set top = (by_type.values()|max) if by_type else 1 %}
+        {% for kind, label in [("flight", "✈️ Flights"), ("stay", "🛏️ Stays"), ("guide", "🧭 Guides")] %}
+          {% set value = by_type.get(kind, 0) %}
+          <div class="bar-row">
+            <span class="bar-label">{{ label }}</span>
+            <span class="bar-track"><span class="bar-fill" style="width: {{ (value / top * 100)|round(1) if top else 0 }}%"></span></span>
+            <span class="bar-value">{{ value|money }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {# ----- Sales by country ----- #}
+    <div class="col-lg-6">
+      <div class="info-card h-100">
+        <h2 class="h5">Sales by destination</h2>
+        {% set top = per_country[0][1] if per_country else 1 %}
+        {% for name, value in per_country %}
+          <div class="bar-row">
+            <span class="bar-label">{{ name }}</span>
+            <span class="bar-track"><span class="bar-fill bar-olive" style="width: {{ (value / top * 100)|round(1) }}%"></span></span>
+            <span class="bar-value">{{ value|money }}</span>
+          </div>
+        {% else %}
+          <p class="text-muted">No bookings yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {# ----- Recent bookings ----- #}
+    <div class="col-lg-8">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h5 mb-0">Latest bookings</h2>
+        <a class="small" href="{{ url_for('admin.bookings') }}">See all →</a>
+      </div>
+      <div class="rihla-table table-responsive">
+        <table class="table">
+          <thead><tr><th>#</th><th>Traveler</th><th>Destination</th><th class="text-end">Total</th><th class="text-end">Commission</th></tr></thead>
+          <tbody>
+            {% for b in recent %}
+              <tr class="{{ 'text-muted' if b.status == 'cancelled' }}">
+                <td>{{ b.id }}{% if b.source == 'agent' %} 🤖{% endif %}</td>
+                <td>{{ b.traveler.full_name }}</td>
+                <td>{{ b.country.name if b.country }}{% if b.status == 'cancelled' %} <span class="badge-cool">cancelled</span>{% endif %}</td>
+                <td class="text-end">{{ b.total_cents|money }}</td>
+                <td class="text-end">{{ b.commission_cents|money }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {# ----- Users ----- #}
+    <div class="col-lg-4">
+      <h2 class="h5 mb-2">Community</h2>
+      <div class="info-card">
+        {% for role, label in [("traveler", "Travelers"), ("guide", "Guides"), ("admin", "Admins")] %}
+          <div class="d-flex justify-content-between py-1"><span>{{ label }}</span><strong>{{ stats.users.get(role, 0) }}</strong></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

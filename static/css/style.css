@@ -463,6 +463,25 @@ a:hover { color: var(--ink); }
 .stat-card { background: var(--paper); border-radius: var(--radius); padding: 1.2rem 1.4rem; border: 1px solid #EFE3D2; height: 100%; }
 .stat-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: #8A7B66; font-weight: 600; }
 .stat-value { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.admin-nav {
+  display: flex; gap: .3rem; overflow-x: auto; margin: 1.2rem 0 1.8rem; padding: .4rem;
+  background: var(--paper); border-radius: 999px; border: 1px solid #EFE3D2;
+}
+.admin-nav a {
+  white-space: nowrap; text-decoration: none; color: var(--ink); font-size: .88rem; font-weight: 500;
+  padding: .4rem .85rem; border-radius: 999px;
+}
+.admin-nav a:hover { background: var(--sand-deep); }
+.admin-nav a.active { background: var(--ink); color: var(--sand); }
+.stat-highlight { background: var(--ink); border-color: var(--ink); }
+.stat-highlight .stat-label { color: var(--saffron); }
+.stat-highlight .stat-value { color: #fff; }
+.stat-highlight .small, .stat-highlight a { color: var(--sand); }
+.bar-row { display: grid; grid-template-columns: 7.5rem 1fr 6.5rem; align-items: center; gap: .6rem; margin: .7rem 0; font-size: .9rem; }
+.bar-track { height: .8rem; background: var(--sand-deep); border-radius: 999px; overflow: hidden; }
+.bar-fill { display: block; height: 100%; background: var(--terracotta); border-radius: 999px; }
+.bar-olive { background: var(--olive-dark); }
+.bar-value { text-align: right; font-weight: 600; color: var(--ink); }
 .admin-tabs .nav-link { color: var(--ink); border-radius: 999px; }
 .admin-tabs .nav-link.active { background: var(--ink); color: var(--sand); }
 .rihla-table { background: var(--paper); border-radius: var(--radius); overflow: hidden; border: 1px solid #EFE3D2; }

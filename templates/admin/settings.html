@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Settings · Admin{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Admin</p>
+  <h1 class="section-title">Settings</h1>
+  {% include "admin/_nav.html" %}
+
+  <div class="info-card" style="max-width: 560px">
+    <h2 class="h5">Platform commission</h2>
+    <p class="small text-muted">Rihla keeps this percentage of every flight, stay and guide booked. The provider receives the rest.
+      Each booking stores the rate it was made with, so changing it only affects <strong>new</strong> bookings.</p>
+    <form method="post" class="d-flex gap-2 align-items-start flex-wrap">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div>
+        <label class="visually-hidden" for="f-rate">Commission percentage</label>
+        <div class="input-group" style="width: 10rem">
+          <input id="f-rate" name="commission_rate" type="number" min="0" max="50" step="0.5" required
+                 value="{{ request.form.get('commission_rate', '%g'|format(rate)) }}"
+                 class="form-control {{ 'is-invalid' if error }}">
+          <span class="input-group-text">%</span>
+          {% if error %}<div class="invalid-feedback">{{ error }}</div>{% endif %}
+        </div>
+      </div>
+      <button class="btn btn-terracotta" type="submit">Save</button>
+    </form>
+    <p class="small mt-3 mb-0">Example: on a $200 guide booking at {{ "%g"|format(rate) }}%, Rihla earns
+      <strong>{{ (200 * rate)|round|int|money }}</strong> and the guide receives <strong>{{ (20000 - 200 * rate)|round|int|money }}</strong>.</p>
+  </div>
+</section>
+{% endblock %}

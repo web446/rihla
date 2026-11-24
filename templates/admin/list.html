@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block title %}{{ resource.title }} · Admin{% endblock %}
+
+{# ONE template for countries, monuments, restaurants, stays and flights.
+   The columns come from blueprints/admin_resources.py. #}
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Admin · content</p>
+  <div class="d-flex justify-content-between align-items-end flex-wrap gap-2">
+    <h1 class="section-title mb-0">{{ resource.title }} <span class="text-muted fs-5">({{ rows|length }})</span></h1>
+    <a class="btn btn-terracotta" href="{{ url_for('admin.content_form', key=resource.key, country_id=country.id if country else '') }}">
+      + Add {{ resource.singular }}</a>
+  </div>
+  {% include "admin/_nav.html" %}
+
+  {% if resource.has_country %}
+    <form class="d-flex gap-2 align-items-center mb-3" method="get">
+      <label class="small text-muted" for="filter-country">Country</label>
+      <select id="filter-country" name="country" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+        <option value="">All</option>
+        {% for c in countries %}<option value="{{ c.slug }}" {% if country and country.id == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+      </select>
+      <noscript><button class="btn btn-sm btn-outline-ink">Filter</button></noscript>
+    </form>
+  {% endif %}
+
+  <div class="rihla-table table-responsive">
+    <table class="table">
+      <thead>
+        <tr>{% for label, _ in resource.columns %}<th>{{ label }}</th>{% endfor %}<th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            {% for _, get in resource.columns %}<td>{{ get(row) }}</td>{% endfor %}
+            <td class="text-end text-nowrap">
+              <a class="btn btn-sm btn-outline-ink" href="{{ url_for('admin.content_form', key=resource.key, item_id=row.id) }}">Edit</a>
+              <form class="d-inline" method="post" action="{{ url_for('admin.content_delete', key=resource.key, item_id=row.id) }}"
+                    onsubmit="return confirm('Delete this {{ resource.singular }}? This cannot be undone.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="{{ resource.columns|length + 1 }}" class="text-center text-muted py-4">Nothing here yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
