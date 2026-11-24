@@ -31,5 +31,6 @@ class Config:
     # AI travel agent settings ("none" means the rule-based demo mode)
     AI_PROVIDER = (os.environ.get("AI_PROVIDER") or "none").lower()
     AI_API_KEY = os.environ.get("AI_API_KEY") or ""
-    AI_MODEL = os.environ.get("AI_MODEL") or ""
+    AI_MODEL = os.environ.get("AI_MODEL") or "claude-opus-5-5"
+    AI_EFFORT = os.environ.get("AI_EFFORT") or "medium"   # low | medium | high
     CHAT_LIMIT_PER_HOUR = int(os.environ.get("CHAT_LIMIT_PER_HOUR") or 20)

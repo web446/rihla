@@ -7,7 +7,7 @@ Run (inside the activated .venv):
 On Render:  gunicorn app:app
 """
 import click
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template, request
 
 from config import Config
 from extensions import db
@@ -34,11 +34,12 @@ def create_app():
 
     # Blueprints = groups of routes (Chapter 9)
     from blueprints.admin import admin_bp
+    from blueprints.agent import agent_bp
     from blueprints.auth import auth_bp
     from blueprints.guide import guide_bp
     from blueprints.public import public_bp
     from blueprints.traveler import traveler_bp
-    for blueprint in (public_bp, auth_bp, traveler_bp, guide_bp, admin_bp):
+    for blueprint in (public_bp, auth_bp, traveler_bp, guide_bp, admin_bp, agent_bp):
         app.register_blueprint(blueprint)
 
     register_error_pages(app)
@@ -56,6 +57,8 @@ def register_error_pages(app):
     for code, (title, default_text) in messages.items():
         def handler(error, code=code, title=title, default_text=default_text):
             text = getattr(error, "description", None) if code == 400 else default_text
+            if request.path.startswith("/api/"):   # the chat API always answers in JSON
+                return jsonify({"error": text or default_text}), code
             return render_template("error.html", code=code, title=title, text=text or default_text), code
         app.register_error_handler(code, handler)
 
