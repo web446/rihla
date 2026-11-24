@@ -48,14 +48,28 @@ def make_client():
     return anthropic.Anthropic(api_key=current_app.config["AI_API_KEY"], timeout=60.0, max_retries=2)
 
 
+def _without_gemini_fields(messages):
+    """Turns written by the Gemini agent keep Gemini's "thought signature" in an extra
+    "gemini_signature" field of their tool_use blocks. Claude doesn't know that field,
+    so it is left out here. Claude's own blocks never have it, so they are sent unchanged."""
+    cleaned = []
+    for message in messages:
+        content = message["content"]
+        if isinstance(content, list) and any("gemini_signature" in b for b in content):
+            content = [{k: v for k, v in b.items() if k != "gemini_signature"} for b in content]
+        cleaned.append({**message, "content": content})
+    return cleaned
+
+
 def _create(client, messages):
     cfg = current_app.config
+    model = cfg["AI_MODEL"] if cfg["AI_MODEL"].startswith("claude") else "claude-opus-5-5"
     return client.beta.messages.create(
-        model=cfg["AI_MODEL"],
+        model=model,
         max_tokens=16000,
         system=SYSTEM_PROMPT,
         tools=TOOLS,
-        messages=messages,
+        messages=_without_gemini_fields(messages),
         output_config={"effort": cfg["AI_EFFORT"]},
         # If Claude's safety filter declines a request, Anthropic re-runs it on a
         # fallback model inside the same call instead of failing.

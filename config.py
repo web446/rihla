@@ -28,9 +28,11 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = database_uri()
 
-    # AI travel agent settings ("none" means the rule-based demo mode)
+    # AI travel agent settings:
+    #   "claude" = Claude API (paid), "gemini" = Google Gemini API (has a free tier),
+    #   "none"   = the rule-based demo mode (no key needed).
     AI_PROVIDER = (os.environ.get("AI_PROVIDER") or "none").lower()
     AI_API_KEY = os.environ.get("AI_API_KEY") or ""
-    AI_MODEL = os.environ.get("AI_MODEL") or "claude-opus-5-5"
+    AI_MODEL = os.environ.get("AI_MODEL") or ("gemini-3.8-flash" if AI_PROVIDER == "gemini" else "claude-opus-5-5")
     AI_EFFORT = os.environ.get("AI_EFFORT") or "medium"   # low | medium | high
     CHAT_LIMIT_PER_HOUR = int(os.environ.get("CHAT_LIMIT_PER_HOUR") or 20)

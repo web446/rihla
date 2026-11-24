@@ -69,8 +69,9 @@
 
   function setMode(mode) {
     if (!mode) return;
-    modeBadge.textContent = mode === "claude" ? "AI · Claude" : "Demo mode";
-    modeBadge.classList.toggle("is-ai", mode === "claude");
+    const labels = { claude: "AI · Claude", gemini: "AI · Gemini" };
+    modeBadge.textContent = labels[mode] || "Demo mode";
+    modeBadge.classList.toggle("is-ai", mode in labels);
   }
 
   function scrollDown() { log.scrollTop = log.scrollHeight; }

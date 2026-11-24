@@ -94,7 +94,7 @@ ask the server to run one of **9 tools**, which answer from our own database wit
 `estimate_trip_cost` · `create_booking` · `list_my_bookings` · `cancel_booking`
 
 ```
-Browser chat ──fetch──► /api/chat ──► Claude API (or demo mode)
+Browser chat ──fetch──► /api/chat ──► Gemini or Claude API (or demo mode)
                                          │ "call search_flights(to_country='Egypt')"
                                          ▼
                               agent/tools.py ──► services/ ──► SQLite
@@ -111,19 +111,29 @@ Browser chat ──fetch──► /api/chat ──► Claude API (or demo mode)
   "cancel trip 6") and calls the **same tools**. If the AI service is down, the chat falls back to demo mode
   automatically, so a presentation never breaks.
 
-### Turning on the real AI (Claude)
-1. Create an API key at [platform.claude.com](https://platform.claude.com) → **API Keys**
-   (usage is billed to that account).
-2. In the project folder, copy the example settings file and open it:
+### Turning on the real AI (Gemini, free, or Claude)
+The agent works with two AI providers. Both use the **same 9 tools and the same rules**
+(`agent/gemini_agent.py` and `agent/claude_agent.py` share the system prompt).
+
+| Provider | Cost | Get a key | `.env` |
+|---|---|---|---|
+| **Google Gemini** | Free tier (limited requests per minute and per day) | [aistudio.google.com](https://aistudio.google.com) → **Get API key** | `AI_PROVIDER=gemini` |
+| **Claude** | Paid, per use | [platform.claude.com](https://platform.claude.com) → **API Keys** | `AI_PROVIDER=claude` |
+
+1. In the project folder, copy the example settings file and open it:
    ```powershell
    Copy-Item .env.example .env
    ```
-3. Set:
+2. Set the provider and paste your key, for example:
    ```
-   AI_PROVIDER=claude
+   AI_PROVIDER=gemini
    AI_API_KEY=your-key-here
    ```
-4. Restart the app. The chat header shows **AI · Claude** instead of **Demo mode**.
+3. Restart the app. The chat header shows **AI · Gemini** (or **AI · Claude**) instead of **Demo mode**.
+
+`AI_MODEL` can stay empty: the default is `gemini-3.8-flash` for Gemini and `claude-opus-5-5` for Claude.
+On Gemini's free tier, Google may use what is sent to improve its products, so only use test data.
+If the free-tier limit is reached, the chat answers in demo mode until the limit resets.
 
 The key lives **only** in `.env` on the server. It is never sent to the browser, and `.env` is in `.gitignore`.
 
@@ -140,7 +150,8 @@ The key lives **only** in `.env` on the server. It is never sent to the browser,
 | **SQLite + Flask-SQLAlchemy** | Database and models (PostgreSQL on Render through `DATABASE_URL`) |
 | **Werkzeug security** | Password hashing (`generate_password_hash` / `check_password_hash`, scrypt) |
 | **python-dotenv** | Loads secrets from `.env` |
-| **Anthropic Python SDK** | Calls the Claude API for the AI travel agent |
+| **Google Gen AI SDK** (`google-genai`) | Calls the Gemini API (free tier) for the AI travel agent |
+| **Anthropic Python SDK** | Calls the Claude API for the AI travel agent (paid option) |
 | **Gunicorn** | Production server (Render) |
 | **Git + GitHub, VS Code** | Version control and editor |
 
@@ -254,7 +265,7 @@ rihla/
 │  ├─ search.py         countries, flights, stays, guides with ratings
 │  ├─ basket.py         trip basket stored in the session
 │  └─ reviews.py        who may review a guide
-├─ agent/               AI travel agent: tools, proposals, Claude loop, demo mode, chat storage
+├─ agent/               AI travel agent: tools, proposals, Gemini and Claude loops, demo mode, chat storage
 ├─ blueprints/          routes: public, auth, traveler, guide, admin (+ admin_resources), agent (JSON API)
 ├─ templates/           Jinja pages (layout.html + one folder per role)
 ├─ static/              css/style.css, js/main.js, js/calculator.js, js/chat.js
@@ -315,7 +326,7 @@ Local, fake accounts created by `init-db`:
 
 ## Automated tests
 
-67 tests check the main rules of the site. They use Python's built-in **unittest**, so nothing extra
+79 tests check the main rules of the site. They use Python's built-in **unittest**, so nothing extra
 has to be installed. From the `rihla` folder:
 
 ```powershell
@@ -323,7 +334,8 @@ has to be installed. From the `rihla` folder:
 ```
 
 Each test starts from a fresh copy of the sample data in a **temporary database**, so the tests can run
-in any order and never change `instance/rihla.db`. The AI agent is always tested in demo mode (no API key needed).
+in any order and never change `instance/rihla.db`. No API key or internet is needed: the AI agent is tested in
+demo mode, and the Gemini agent with a fake Gemini client that returns prepared answers.
 
 | File | What it checks |
 |---|---|
@@ -334,6 +346,7 @@ in any order and never change `instance/rihla.db`. The AI agent is always tested
 | `tests/test_reviews_and_guides.py` | Rating a guide once (past trips only), guide earnings, admin approves / rejects guides |
 | `tests/test_admin.py` | Admin pages, adding and editing content, seat rules, delete rules, commission setting |
 | `tests/test_agent.py` | AI agent answers, booking only after Confirm, cancelling, users only see their own chats, rate limit |
+| `tests/test_gemini_agent.py` | Gemini tool loop, saved history, Confirm rule, errors fall back to demo mode, switching providers |
 
 The sample data uses fixed dates (flights from December 2026 to 2027), so the tests are meant to run before those flights leave.
 

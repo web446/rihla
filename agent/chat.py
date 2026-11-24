@@ -4,7 +4,8 @@ Every chat message is a row in chat_messages:
   role      user | assistant | tool
   content   the text shown in the chat window
   cards     JSON list of cards shown under it
-  api_json  the exact blocks sent to / received from Claude (replayed to continue a chat)
+  api_json  the exact blocks sent to / received from the AI (replayed to continue a chat).
+            Claude and Gemini turns are both saved in this same block format.
 """
 import json
 import re
@@ -15,7 +16,7 @@ from flask import current_app
 from extensions import db
 from models import ChatConversation, ChatMessage
 
-from agent import claude_agent, proposals
+from agent import claude_agent, gemini_agent, proposals
 from agent.demo_agent import DemoAgent
 
 CONFIRM_WORDS = re.compile(r"^\s*(yes[,!.]?\s*)?(confirm|confirmed|book it|go ahead)\s*[.!]*\s*$", re.IGNORECASE)
@@ -30,9 +31,13 @@ class ChatError(Exception):
         self.status = status
 
 
+AGENTS = {"claude": claude_agent, "gemini": gemini_agent}   # provider name -> agent module
+
+
 def mode():
+    """"claude" or "gemini" when that provider is chosen AND a key is set, otherwise "demo"."""
     cfg = current_app.config
-    return "claude" if cfg["AI_PROVIDER"] == "claude" and cfg["AI_API_KEY"] else "demo"
+    return cfg["AI_PROVIDER"] if cfg["AI_PROVIDER"] in AGENTS and cfg["AI_API_KEY"] else "demo"
 
 
 # ---------------------------------------------------------------------------
@@ -133,14 +138,14 @@ def handle_message(user, conversation_id, text):
     _save(conversation, "user", _text_block(f"[Today is {date.today():%A %d %B %Y}] {text}"), text, None)
     current_mode = mode()
     note = ""
-    if current_mode == "claude":
+    if current_mode in AGENTS:   # the real AI: Claude or Gemini (same tools, same rules)
         messages = _api_history(conversation)
         save = lambda role, api, t, cards: _save(conversation, role, api, t, cards)
         try:
-            reply, cards = claude_agent.run_turn(messages, user, conversation.id, save)
-            return _response(conversation, "claude", reply, cards)
+            reply, cards = AGENTS[current_mode].run_turn(messages, user, conversation.id, save)
+            return _response(conversation, current_mode, reply, cards)
         except claude_agent.AgentUnavailable as error:
-            current_app.logger.warning("Claude unavailable (%s), using demo mode", error)
+            current_app.logger.warning("%s unavailable (%s), using demo mode", current_mode, error)
             current_mode, note = "demo", "⚠️ The AI service is unavailable right now, so I answered in demo mode. "
 
     reply, cards = DemoAgent(user, conversation.id).reply(text)

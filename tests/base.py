@@ -63,6 +63,7 @@ class RihlaTestCase(unittest.TestCase):
         _create_seed_copy()                          # only does the work the first time
         shutil.copyfile(SEED_COPY, DB_FILE)          # back to the original sample data
         app.config["AI_PROVIDER"] = "none"
+        app.config["AI_API_KEY"] = ""
         app.config["CHAT_LIMIT_PER_HOUR"] = DEFAULT_CHAT_LIMIT
         self.ctx = app.app_context()
         self.ctx.push()
