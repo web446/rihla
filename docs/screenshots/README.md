@@ -1,8 +1,9 @@
 # Screenshots
 
-Put the screenshots used by the main README here, with these exact names:
+The screenshots used by the main README, taken from the running site with the sample data
+(AI agent in demo mode). To retake one, keep the same file name:
 
-| File | What to capture |
+| File | What it shows |
 |---|---|
 | `home.png` | Homepage (hero, boarding-pass search, postcards) |
 | `country.png` | A country page with the "With a Lebanese passport" card |

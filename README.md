@@ -5,7 +5,7 @@ that a Lebanese passport can enter **without arranging a visa in advance**. Pick
 in one place: entry rules, monuments, food, hotels, flights from Beirut, approved local guides and the real
 cost of the trip. Then book it by clicking, or by chatting with an **AI travel agent**.
 
-> GIN446 Web final project, Group 5. Flights, hotels and payments are **simulated**: no real money is charged.
+> GIN446 Web final project, Group 5: **Joe Atallah** and **Gebran Gebran**. Flights, hotels and payments are **simulated**: no real money is charged.
 
 ![Homepage](docs/screenshots/home.png)
 
@@ -326,7 +326,7 @@ Local, fake accounts created by `init-db`:
 
 ## Screenshots
 
-> Placeholders: add the images to `docs/screenshots/` with these names.
+> Taken from the running site with the sample data (`flask --app app init-db`); the AI agent is in demo mode.
 
 | Page | Screenshot |
 |---|---|
