@@ -34,6 +34,7 @@ from models import User  # noqa: E402
 
 app.config["TESTING"] = True
 DEFAULT_CHAT_LIMIT = app.config["CHAT_LIMIT_PER_HOUR"]
+DEFAULT_MODEL = app.config["AI_MODEL"]
 
 
 def _close_database():
@@ -64,6 +65,7 @@ class RihlaTestCase(unittest.TestCase):
         shutil.copyfile(SEED_COPY, DB_FILE)          # back to the original sample data
         app.config["AI_PROVIDER"] = "none"
         app.config["AI_API_KEY"] = ""
+        app.config["AI_MODEL"] = DEFAULT_MODEL
         app.config["CHAT_LIMIT_PER_HOUR"] = DEFAULT_CHAT_LIMIT
         self.ctx = app.app_context()
         self.ctx.push()

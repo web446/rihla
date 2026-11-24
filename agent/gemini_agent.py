@@ -26,7 +26,9 @@ from google.genai import errors, types
 from agent.claude_agent import SYSTEM_PROMPT, AgentUnavailable
 from agent.tools import TOOLS, result_to_json, run_tool
 
-DEFAULT_MODEL = "gemini-3.8-flash"   # free tier on the Gemini API (November 2026)
+# Free-tier model. In our tests (November 2026) the bigger free models were often "overloaded"
+# or took 30+ seconds, while flash-lite answered in a few seconds and used the tools well.
+DEFAULT_MODEL = "gemini-3.5-flash-lite"
 MAX_TOOL_ROUNDS = 6
 # Gemini 3 models attach a "thought signature" to their tool calls and expect it back.
 # A tool call saved without one (e.g. written by Claude) is sent with this documented placeholder.
@@ -153,13 +155,21 @@ def _config(with_thinking=True):
 
 
 def _generate(client, contents):
+    model = model_name()
     try:
-        return client.models.generate_content(model=model_name(), contents=contents, config=_config())
+        return client.models.generate_content(model=model, contents=contents, config=_config())
     except errors.ClientError as error:
         # Some models don't accept a thinking level: try once without it.
         if "thinking" not in str(error).lower():
             raise
-        return client.models.generate_content(model=model_name(), contents=contents, config=_config(False))
+        return client.models.generate_content(model=model, contents=contents, config=_config(False))
+    except errors.ServerError:
+        # 503 "high demand" / 504 timeout: free models are sometimes overloaded.
+        # Try once with the default (lighter) model before giving up.
+        if model == DEFAULT_MODEL:
+            raise
+        current_app.logger.warning("%s is overloaded, retrying with %s", model, DEFAULT_MODEL)
+        return client.models.generate_content(model=DEFAULT_MODEL, contents=contents, config=_config())
 
 
 def run_turn(messages, user, conversation_id, save):

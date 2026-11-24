@@ -131,7 +131,8 @@ The agent works with two AI providers. Both use the **same 9 tools and the same 
    ```
 3. Restart the app. The chat header shows **AI · Gemini** (or **AI · Claude**) instead of **Demo mode**.
 
-`AI_MODEL` can stay empty: the default is `gemini-3.8-flash` for Gemini and `claude-opus-5-5` for Claude.
+`AI_MODEL` can stay empty: the default is `gemini-3.5-flash-lite` for Gemini (fast on the free tier; if another
+Gemini model is chosen and is overloaded, the agent retries once with it) and `claude-opus-5-5` for Claude.
 On Gemini's free tier, Google may use what is sent to improve its products, so only use test data.
 If the free-tier limit is reached, the chat answers in demo mode until the limit resets.
 
@@ -326,7 +327,7 @@ Local, fake accounts created by `init-db`:
 
 ## Automated tests
 
-79 tests check the main rules of the site. They use Python's built-in **unittest**, so nothing extra
+80 tests check the main rules of the site. They use Python's built-in **unittest**, so nothing extra
 has to be installed. From the `rihla` folder:
 
 ```powershell

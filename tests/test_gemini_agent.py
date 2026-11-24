@@ -161,6 +161,18 @@ class ErrorTests(GeminiTestCase):
         self.assertIn("unavailable", data["messages"][-1]["text"])
         self.assertIn("Georgia", data["messages"][-1]["text"])
 
+    def test_overloaded_model_retries_with_the_light_model(self):
+        app.config["AI_MODEL"] = "gemini-3.8-flash"
+        busy = errors.ServerError(503, {"error": {"code": 503, "message": "high demand", "status": "UNAVAILABLE"}})
+        fake = self.use_fake(busy, answer(text("Hello from the light model.")))
+        models_used = []
+        original = fake.generate_content
+        fake.generate_content = lambda model, contents, config: models_used.append(model) or original(model, contents, config)
+        data = self.chat("Hi")
+        self.assertEqual(data["mode"], "gemini")
+        self.assertEqual(models_used, ["gemini-3.8-flash", gemini_agent.DEFAULT_MODEL])
+        self.assertEqual(data["messages"][-1]["text"], "Hello from the light model.")
+
     def test_blocked_answer_gets_a_polite_refusal(self):
         self.use_fake(types.GenerateContentResponse(candidates=[types.Candidate(
             content=types.Content(role="model", parts=[]), finish_reason=types.FinishReason.SAFETY)]))
