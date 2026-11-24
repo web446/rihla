@@ -130,7 +130,11 @@ class Country(db.Model):
     tags = db.Column(db.String(150), nullable=False, default="")  # "beach,history,food"
     # Typical spending per person per day on food + local transport.
     avg_daily_spend_cents = db.Column(db.Integer, nullable=False, default=0)
-    hero_image = db.Column(db.String(255))
+    # Real photo (Wikimedia Commons). Free licences require crediting the author,
+    # so the credit ("Author · CC BY-SA 4.0") and the file's page are stored with it.
+    hero_image = db.Column(db.String(500))
+    hero_credit = db.Column(db.String(300))
+    hero_source = db.Column(db.String(500))
 
     # --- Entry rules for an ordinary LEBANESE passport (Rihla's travelers fly from Beirut) ---
     entry_type = db.Column(db.String(20), nullable=False, default="visa_free")   # see ENTRY_TYPES
@@ -178,7 +182,9 @@ class Monument(db.Model):
     city = db.Column(db.String(80), nullable=False)
     description = db.Column(db.Text, nullable=False)
     entry_cost_cents = db.Column(db.Integer, nullable=False, default=0)  # 0 = free
-    image = db.Column(db.String(255))
+    image = db.Column(db.String(500))          # real photo URL (Wikimedia Commons)
+    image_credit = db.Column(db.String(300))   # "Author · licence", shown under the photo
+    image_source = db.Column(db.String(500))   # the photo's page on Wikimedia Commons
 
     country = db.relationship("Country", back_populates="monuments")
 

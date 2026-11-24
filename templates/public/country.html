@@ -6,8 +6,13 @@
 
 {% block content %}
 {# ---------------- Country poster header ---------------- #}
-<header class="country-hero poster poster-{{ country.slug }}"
-        {% if country.hero_image %}style="background-image: url('{{ country.hero_image }}')"{% endif %}>
+{# With a photo: a dark gradient on top of it keeps the white text readable.
+   Without a photo (or offline), the CSS poster colours of the country are used. #}
+<header class="country-hero poster poster-{{ country.slug }} {{ 'has-photo' if country.hero_image }}"
+        {% if country.hero_image %}style="background-image: linear-gradient(180deg, rgba(0,0,0,.25) 0%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.7) 100%), url('{{ country.hero_image }}')"{% endif %}>
+  {% if country.hero_credit %}
+    <a class="photo-credit" href="{{ country.hero_source }}" target="_blank" rel="noopener">📷 {{ country.hero_credit }}</a>
+  {% endif %}
   <div class="container">
     <a href="{{ url_for('public.countries') }}" class="back-link">← All destinations</a>
     <div class="country-hero-inner">
@@ -90,7 +95,17 @@
     <div class="row g-3">
       {% for m in monuments %}
         <div class="col-md-6 col-lg-4">
-          <article class="info-card h-100">
+          <article class="info-card monument-card h-100">
+            {% if m.image %}
+              {# loading="lazy": the browser only downloads photos when they scroll into view.
+                 If the photo can't load (e.g. offline), onerror removes it and the card still works. #}
+              <figure class="monument-photo">
+                <img src="{{ m.image }}" alt="{{ m.name }}, {{ m.city }}" loading="lazy" onerror="this.closest('figure').remove()">
+                {% if m.image_credit %}
+                  <figcaption><a href="{{ m.image_source }}" target="_blank" rel="noopener">📷 {{ m.image_credit }}</a></figcaption>
+                {% endif %}
+              </figure>
+            {% endif %}
             <div class="d-flex justify-content-between align-items-start gap-2">
               <h3 class="h5">{{ m.name }}</h3>
               <span class="ticket">{{ 'Free' if m.entry_cost_cents == 0 else m.entry_cost_cents|money }}</span>

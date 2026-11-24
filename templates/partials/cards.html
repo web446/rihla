@@ -17,7 +17,8 @@
 {# A country shown as a vintage postcard. `footer` is optional extra HTML. #}
 {% macro postcard(country, footer=none) %}
   <a class="postcard poster poster-{{ country.slug }}" href="{{ url_for('public.country', slug=country.slug) }}"
-     {% if country.hero_image %}style="background-image: url('{{ country.hero_image }}')"{% endif %}>
+     {% if country.hero_image %}style="background-image: url('{{ country.hero_image }}')"{% endif %}
+     {% if country.hero_credit %}title="Photo: {{ country.hero_credit }}"{% endif %}>
     <span class="postcard-stamp" aria-hidden="true">{{ poster_icons.get(country.slug, '✈️') }}</span>
     <span class="postcard-body">
       <span class="postcard-greeting">Greetings from</span>

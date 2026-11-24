@@ -647,6 +647,29 @@ a:hover { color: var(--ink); }
 .passport-notes.is-warning { background: #FFF6DD; color: #6B4A00; }
 @media (max-width: 576px) { .passport-facts { grid-template-columns: 1fr; } }
 
+/* ==========================================================================
+   Real photos (Wikimedia Commons) + credits
+   ========================================================================== */
+.country-hero { position: relative; }
+.country-hero.has-photo { min-height: 420px; }
+.country-hero.has-photo .hero-stamp { box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
+.country-hero.has-photo .country-name, .country-hero.has-photo .country-tagline { text-shadow: 0 2px 12px rgba(0, 0, 0, .45); }
+.photo-credit {
+  position: absolute; right: .8rem; bottom: .6rem; max-width: 60%;
+  font-size: .7rem; color: rgba(255, 255, 255, .85); text-decoration: none;
+  background: rgba(0, 0, 0, .35); padding: .15rem .5rem; border-radius: 999px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.photo-credit:hover { color: #fff; background: rgba(0, 0, 0, .55); }
+.postcard[style*="background-image"] .postcard-body { background: linear-gradient(0deg, rgba(0, 0, 0, .75), rgba(0, 0, 0, .15) 70%, transparent); }
+.monument-card { overflow: hidden; }
+.monument-photo { margin: -1.4rem -1.4rem 1rem; position: relative; }
+.monument-photo img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: var(--snow-deep); }
+.monument-photo figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: .25rem .6rem;
+  background: linear-gradient(0deg, rgba(0, 0, 0, .6), transparent); font-size: .65rem; }
+.monument-photo figcaption a { color: rgba(255, 255, 255, .9); text-decoration: none; }
+.credit-thumb { width: 96px; height: 60px; object-fit: cover; border-radius: 8px; }
+
 /* Respect users who turned off animations in their system settings */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -662,6 +685,7 @@ a:hover { color: var(--ink); }
 .footer-links { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; }
 .footer-links a { color: var(--snow); text-decoration: none; }
 .footer-links a:hover { color: #FF9EA2; text-decoration: underline; }
+.footer-bottom a { color: #FF9EA2; }
 .footer-bottom {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem;
   margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid rgba(255, 255, 255, .15); font-size: .8rem; opacity: .75;

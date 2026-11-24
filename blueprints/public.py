@@ -86,6 +86,12 @@ def country(slug):
     )
 
 
+@public_bp.route("/credits")
+def credits():
+    """Who took each photo, under which licence (required by Creative Commons licences)."""
+    return render_template("public/credits.html", countries=search.all_countries())
+
+
 @public_bp.route("/guides/<int:guide_id>")
 def guide_profile(guide_id):
     guide = db.session.get(GuideProfile, guide_id)

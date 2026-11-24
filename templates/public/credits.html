@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block title %}Photo credits{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <p class="poster-kicker">Thank you</p>
+  <h1 class="section-title">Photo credits</h1>
+  <p class="text-muted" style="max-width: 46rem">All photos on Rihla are real photographs from
+    <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a>, shared by their
+    authors under free licences (Creative Commons or public domain). These licences let anyone reuse a photo
+    as long as the author and licence are credited, which is what this page does. No image on the site is AI-generated.</p>
+
+  {% for country in countries %}
+    <h2 class="h4 mt-5 mb-3">{{ country.name }}</h2>
+    <div class="rihla-table table-responsive">
+      <table class="table">
+        <thead><tr><th>Photo</th><th>Shows</th><th>Author · licence</th><th>Source</th></tr></thead>
+        <tbody>
+          {% if country.hero_image %}
+            <tr>
+              <td><img class="credit-thumb" src="{{ country.hero_image }}" alt="" loading="lazy"></td>
+              <td>{{ country.name }} (main photo)</td>
+              <td>{{ country.hero_credit }}</td>
+              <td><a href="{{ country.hero_source }}" target="_blank" rel="noopener">Wikimedia Commons</a></td>
+            </tr>
+          {% endif %}
+          {% for m in country.monuments if m.image %}
+            <tr>
+              <td><img class="credit-thumb" src="{{ m.image }}" alt="" loading="lazy"></td>
+              <td>{{ m.name }}</td>
+              <td>{{ m.image_credit }}</td>
+              <td><a href="{{ m.image_source }}" target="_blank" rel="noopener">Wikimedia Commons</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

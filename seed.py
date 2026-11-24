@@ -18,6 +18,7 @@ from datetime import date
 from extensions import db
 from models import (Country, Flight, GuideProfile, Monument, Restaurant, Review,
                     Setting, Stay, User)
+from photos import PHOTOS   # real photos from Wikimedia Commons, with author + licence
 from services.booking import create_booking
 
 # ---------------------------------------------------------------------------
@@ -147,7 +148,7 @@ COUNTRIES = [
             ("Pyramids of Giza & the Sphinx", "Giza", 14, "The Great Pyramid of Khufu, 4,500 years old and still standing."),
             ("Grand Egyptian Museum", "Giza", 25, "The new home of Tutankhamun's treasures, next to the pyramids."),
             ("Karnak Temple", "Luxor", 12, "A forest of giant columns, the largest religious site of the ancient world."),
-            ("Ras Mohammed National Park", "Sharm El Sheikh", 5, "Coral reefs and some of the best snorkelling in the Red Sea."),
+            ("Ras Mohammed National Park", "Sharm El Sheikh", 5, "Coral reefs, angelfish and some of the best snorkelling in the Red Sea."),
             ("Valley of the Kings", "Luxor", 16, "Painted royal tombs cut into the desert cliffs."),
         ],
         "restaurants": [
@@ -184,7 +185,7 @@ COUNTRIES = [
         "popularity": 3,
         "popularity_note": "Short, easy trip with daily direct flights (estimate).",
         "monuments": [
-            ("Petra", "Wadi Musa", 71, "The rose-red Nabataean city carved into the cliffs, with the famous Treasury."),
+            ("Petra", "Wadi Musa", 71, "The rose-red Nabataean city carved into the cliffs: the Treasury, then 800 steps up to the Monastery."),
             ("Wadi Rum Protected Area", "Wadi Rum", 7, "Red sand dunes and rock arches where 'The Martian' was filmed."),
             ("Jerash", "Jerash", 14, "One of the best-preserved Roman cities outside Italy."),
             ("Amman Citadel", "Amman", 4, "The Temple of Hercules above the capital's seven hills."),
@@ -361,8 +362,15 @@ def seed_database():
             entry_type=c["entry_type"], max_stay=c["max_stay"], entry_notes=c["entry_notes"],
             popularity=c["popularity"], popularity_note=c["popularity_note"],
         )
+        photo = PHOTOS.get(f"country:{c['slug']}")
+        if photo:
+            country.hero_image, country.hero_credit, country.hero_source = photo["url"], photo["credit"], photo["source"]
         for name, city, cost, desc in c["monuments"]:
-            country.monuments.append(Monument(name=name, city=city, entry_cost_cents=usd(cost), description=desc))
+            monument = Monument(name=name, city=city, entry_cost_cents=usd(cost), description=desc)
+            photo = PHOTOS.get(f"monument:{name}")
+            if photo:
+                monument.image, monument.image_credit, monument.image_source = photo["url"], photo["credit"], photo["source"]
+            country.monuments.append(monument)
         for name, city, dish, price_range, meal, desc in c["restaurants"]:
             country.restaurants.append(Restaurant(name=name, city=city, must_try_dish=dish, price_range=price_range,
                                                   avg_meal_cost_cents=usd(meal), description=desc))

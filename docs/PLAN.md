@@ -277,6 +277,8 @@ flask --app app run --debug      → http://127.0.0.1:5000/
 The bright flag colours fail the WCAG AA 4.5:1 minimum behind small white text (red 4.4:1, green 3.2:1),
 so the deeper shades are used for buttons.
 
+**Photos:** real photographs from Wikimedia Commons (free licences, no AI images) for each country and monument, listed with author and licence on `/credits` (data in `photos.py`). Pages fall back to the CSS posters if a photo cannot load.
+
 **Fonts:** Fraunces (headings) + Inter (body), from Google Fonts.
 
 **Signature details:** a red / white / red flag ribbon under the menu · login poster with a cedar 🌲 in a white
