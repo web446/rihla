@@ -6,8 +6,10 @@ Run (inside the activated .venv):
     flask --app app run --debug      -> http://127.0.0.1:5000/
 On Render:  gunicorn app:app
 """
+import os
+
 import click
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, url_for
 
 from config import Config
 from extensions import db
@@ -27,6 +29,15 @@ def create_app():
     app.jinja_env.filters["money"] = format_money
     # {{ csrf_token() }} can be used in every template (hidden field in forms)
     app.jinja_env.globals["csrf_token"] = csrf_token
+
+    def asset(filename):
+        """URL of a static file + ?v=<last modified time>. When the file changes, the
+        URL changes, so browsers can't keep using an old cached copy."""
+        path = os.path.join(app.static_folder, filename)
+        version = int(os.path.getmtime(path)) if os.path.exists(path) else 0
+        return url_for("static", filename=filename, v=version)
+
+    app.jinja_env.globals["asset"] = asset
 
     # Runs before every request, in this order:
     app.before_request(load_current_user)   # g.user = logged-in user or None

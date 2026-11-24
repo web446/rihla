@@ -33,7 +33,8 @@ def int_arg(name, low, high, default=None):
 @public_bp.route("/")
 def home():
     countries = search.all_countries()
-    top_guides = search.guides_with_ratings(limit=4)
+    # "Rated by real travelers": only guides that already have reviews
+    top_guides = [row for row in search.guides_with_ratings(limit=8) if row[1] is not None][:4]
     return render_template("public/home.html", countries=countries, top_guides=top_guides,
                            interests=search.all_interests())
 
