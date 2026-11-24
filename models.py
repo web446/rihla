@@ -372,8 +372,13 @@ class ChatMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     conversation_id = db.Column(db.Integer, db.ForeignKey("chat_conversations.id"), nullable=False)
     role = db.Column(db.String(10), nullable=False)
-    content = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=False)       # the text shown in the chat window
     cards_json = db.Column(db.Text)  # flight / hotel / guide cards shown under the message
+    # The EXACT content blocks sent to / received from the Claude API (text, thinking,
+    # tool_use, tool_result), saved so a conversation can continue later. They are
+    # replayed unchanged: Claude's thinking blocks are only valid if the earlier
+    # conversation is byte-for-byte the same, so this history is append-only.
+    api_json = db.Column(db.Text)
     created_at = db.Column(db.DateTime, nullable=False, default=now, index=True)
 
     conversation = db.relationship("ChatConversation", back_populates="messages")

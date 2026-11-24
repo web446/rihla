@@ -83,6 +83,48 @@ def _check_trip_rules(loaded, start_date, end_date, allow_past):
             raise BookingError(f"This trip only has {nights + 1} day(s) for a guide.")
 
 
+def _load_and_check(items, start_date, end_date, allow_past=False):
+    """Load every item and apply all the trip rules. Changes NOTHING.
+
+    Returns [(type, object, quantity, unit price in cents)].
+    """
+    if not items:
+        raise BookingError("Your trip is empty.")
+    if not isinstance(start_date, date) or not isinstance(end_date, date) or end_date < start_date:
+        raise BookingError("Please choose valid trip dates.")
+    loaded = []
+    for spec in items:
+        item_type = spec.get("type")
+        quantity = int(spec.get("quantity", 1))
+        if quantity < 1 or quantity > 60:
+            raise BookingError("Quantities must be between 1 and 60.")
+        target, unit_cents = _load_item(item_type, int(spec.get("id")))
+        loaded.append((item_type, target, quantity, unit_cents))
+    _check_trip_rules(loaded, start_date, end_date, allow_past)
+    return loaded
+
+
+def preview_booking(items, start_date, end_date):
+    """Check a trip and price it WITHOUT booking anything.
+
+    Used by the AI agent to show the summary the traveler must confirm.
+    Runs the exact same rules as create_booking(), plus a seat check
+    (create_booking re-checks seats atomically when the user confirms).
+    """
+    try:
+        loaded = _load_and_check(items, start_date, end_date)
+    except (ValueError, TypeError) as error:
+        raise BookingError("Some booking details were invalid.") from error
+    lines = []
+    for item_type, target, quantity, unit_cents in loaded:
+        if item_type == "flight" and target.seats_available < quantity:
+            raise BookingError(f"Only {target.seats_available} seat(s) left on that flight.")
+        lines.append({"type": item_type, "id": target.id, "quantity": quantity,
+                      "unit_cents": unit_cents, "total_cents": unit_cents * quantity})
+    return {"lines": lines, "total_cents": sum(line["total_cents"] for line in lines),
+            "country": loaded[0][1].country}
+
+
 def create_booking(traveler, items, start_date, end_date, source="web", allow_past=False):
     """Create one confirmed booking (a trip) and return it.
 
@@ -111,15 +153,7 @@ def create_booking(traveler, items, start_date, end_date, source="web", allow_pa
 
     try:
         # 1. Load everything and check the rules BEFORE changing anything.
-        loaded = []
-        for spec in items:
-            item_type = spec.get("type")
-            quantity = int(spec.get("quantity", 1))
-            if quantity < 1 or quantity > 60:
-                raise BookingError("Quantities must be between 1 and 60.")
-            target, unit_cents = _load_item(item_type, int(spec.get("id")))
-            loaded.append((item_type, target, quantity, unit_cents))
-        _check_trip_rules(loaded, start_date, end_date, allow_past)
+        loaded = _load_and_check(items, start_date, end_date, allow_past)
 
         # 2. Save: reserve seats, price every line, add up the totals.
         db.session.add(booking)  # part of the current transaction until commit()

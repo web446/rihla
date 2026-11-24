@@ -173,6 +173,7 @@ CREATE TABLE chat_messages (
 	role VARCHAR(10) NOT NULL, 
 	content TEXT NOT NULL, 
 	cards_json TEXT, 
+	api_json TEXT, 
 	created_at DATETIME NOT NULL, 
 	PRIMARY KEY (id), 
 	CONSTRAINT ck_msg_role CHECK (role IN ('user', 'assistant', 'tool')), 
