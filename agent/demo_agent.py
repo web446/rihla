@@ -7,9 +7,10 @@ keeps the chat working during a presentation even without internet or a key.
 
 Examples it understands:
     "somewhere warm in March for 5 days, budget $1500"
-    "find flights to Italy"            "hotels in Japan"
-    "book the cheapest hotel in Japan" "plan a trip to Egypt"
-    "guides in Greece speaking Arabic" "tell me about Turkey"
+    "find flights to Armenia"          "hotels in Jordan"
+    "book the cheapest hotel in Armenia" "plan a trip to Egypt"
+    "guides in Malaysia speaking Arabic" "tell me about Georgia"
+    "where can I go without a visa?"   "do I need a visa for Georgia?"
     "book flight 12"   "book stay 7"   "book guide 3"
     "my bookings"      "cancel trip 6"
 """
@@ -26,10 +27,11 @@ MONTHS.update({name.lower(): i for i, name in enumerate(calendar.month_abbr) if 
 LANGUAGES = ("english", "arabic", "french", "italian", "japanese", "greek", "turkish", "spanish",
              "german", "thai", "chinese")
 HELP = ("I'm in demo mode, so I understand a few kinds of requests. Try:\n"
+        "• \"Where can I go without a visa?\" or \"Do I need a visa for Georgia?\"\n"
         "• \"Somewhere warm in March for 5 days, budget $1500\"\n"
-        "• \"Find flights to Italy\" or \"Hotels in Japan\"\n"
-        "• \"Plan a trip to Egypt\" or \"Book the cheapest hotel in Japan\"\n"
-        "• \"Guides in Greece speaking Arabic\"\n"
+        "• \"Find flights to Armenia\" or \"Hotels in Jordan\"\n"
+        "• \"Plan a trip to Turkey\" or \"Book the cheapest hotel in Armenia\"\n"
+        "• \"Guides in Malaysia speaking Arabic\"\n"
         "• \"My bookings\" or \"Cancel trip 6\"")
 
 
@@ -92,6 +94,9 @@ class DemoAgent:
         if match:
             return self.book_item(match.group(1), int(match.group(2)), msg)
 
+        if re.search(r"\bvisas?\b|\bpassport\b", lower):
+            return self.visa_answer(country)
+
         if re.search(r"\b(book|reserve)\b", lower) and re.search(r"\b(cheapest|cheap)\b", lower) and country:
             return self.package(country, with_guide="guide" in lower)
 
@@ -149,6 +154,21 @@ class DemoAgent:
         return HELP
 
     # ------------------------------------------------------------------
+    def visa_answer(self, country):
+        """'Where can I go without a visa?' or 'Do I need a visa for Georgia?'"""
+        if country:
+            d = self.call("get_country_details", country=country.name).data
+            text = (f"With a Lebanese passport, {d['country']} is **{d['entry_for_lebanese_passport'].lower()}** "
+                    f"for up to {d['max_stay']}.")
+            if d["entry_conditions"]:
+                text += f" {d['entry_conditions']}"
+            return text + " Rules can change, so check with the embassy before you fly."
+        results = self.call("search_countries", no_visa_in_advance_only=False).data["results"]
+        lines = [f"• **{r['country']}**: {r['entry_for_lebanese_passport']}, {r['max_stay']}"
+                 + (", direct flight" if r["direct_flight_from_beirut"] else "") for r in results]
+        return ("All our destinations welcome a Lebanese passport without a visa arranged in advance:\n"
+                + "\n".join(lines) + "\nAsk me about any of them, e.g. \"tell me about Georgia\".")
+
     def package(self, country, with_guide):
         """Next flight + cheapest stay for the whole trip (+ top guide 2 days) -> summary to confirm."""
         flights = self.call("search_flights", from_city="Beirut", to_country=country.name, month=None, date=None)

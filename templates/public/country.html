@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% from "partials/cards.html" import stars, guide_card with context %}
 {% from "partials/book.html" import add_to_trip with context %}
+{% from "partials/passport.html" import entry_badge, popularity %}
 {% block title %}{{ country.name }}{% endblock %}
 
 {% block content %}
@@ -39,6 +40,30 @@
         <h2 class="section-title">Overview</h2>
         <p class="lead">{{ country.description }}</p>
         <div>{% for tag in country.tag_list() %}<span class="chip">{{ tag }}</span>{% endfor %}</div>
+
+        {# ----- Entry rules for a Lebanese passport (the core idea of Rihla) ----- #}
+        <aside class="passport-card mt-4" aria-labelledby="passport-title">
+          <div class="passport-head">
+            <span class="passport-cedar" aria-hidden="true">🌲</span>
+            <div>
+              <h3 id="passport-title" class="h5 mb-0">With a Lebanese passport</h3>
+              <span class="small">Ordinary passport · checked November 2026</span>
+            </div>
+          </div>
+          <dl class="passport-facts">
+            <div><dt>Entry</dt><dd>{{ entry_badge(country, show_stay=false) }}</dd></div>
+            <div><dt>Max stay</dt><dd>{{ country.max_stay }}</dd></div>
+            <div><dt>Direct flight</dt>
+              <dd>{% if country.has_direct_flight() %}✈ Yes, non-stop from Beirut{% else %}Connecting flights only{% endif %}</dd></div>
+            <div><dt>Popular with Lebanese</dt><dd>{{ popularity(country) }}</dd></div>
+          </dl>
+          {% if country.entry_notes %}
+            <p class="passport-notes {{ 'is-warning' if country.entry_type == 'conditional' }}">
+              {{ '⚠️ ' if country.entry_type == 'conditional' }}{{ country.entry_notes }}</p>
+          {% endif %}
+          {% if country.popularity_note %}<p class="small text-muted mb-1">{{ country.popularity_note }}</p>{% endif %}
+          <p class="small text-muted mb-0">Rules change: confirm with the embassy or official sources before you travel.</p>
+        </aside>
       </div>
       <div class="col-lg-5">
         <dl class="facts">

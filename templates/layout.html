@@ -103,7 +103,7 @@
           <h2 class="footer-title">Explore</h2>
           <ul class="footer-links">
             <li><a href="{{ url_for('public.countries') }}">All destinations</a></li>
-            {% for slug, name in [("italy", "Italy"), ("japan", "Japan"), ("egypt", "Egypt")] %}
+            {% for slug, name in [("turkey", "Turkey"), ("armenia", "Armenia"), ("georgia", "Georgia")] %}
               <li><a href="{{ url_for('public.country', slug=slug) }}">{{ name }}</a></li>
             {% endfor %}
           </ul>

@@ -138,6 +138,7 @@
     switch (c.type) {
       case "country": {
         card = cardShell("country", (c.warm ? "☀️ " : "") + c.title, c.subtitle);
+        if (c.entry) card.append(el("div", "chat-card-entry", c.entry + (c.direct ? " · ✈ direct" : "")));
         card.append(el("div", "chat-card-price", c.price));
         const link = el("a", "chat-card-link", "Open page →");
         link.href = root.dataset.countryUrl.replace("SLUG", encodeURIComponent(c.slug));

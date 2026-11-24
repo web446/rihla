@@ -6,7 +6,8 @@
 <section class="container section">
   <p class="poster-kicker">Destinations</p>
   <h1 class="section-title">Where should you go?</h1>
-  <p class="text-muted">Estimates include the cheapest available flight from Beirut, the cheapest stay and
+  <p class="text-muted">Every destination can be entered with a Lebanese passport without arranging a visa in
+    advance (check each country's conditions). Estimates include the cheapest available flight from Beirut, the cheapest stay and
     typical daily spending on food and transport.</p>
 
   {# Filter bar: a GET form, so every search has its own shareable URL #}
@@ -44,6 +45,14 @@
     <div class="col-6 col-md-2 d-grid">
       <button class="btn btn-red" type="submit">Search</button>
     </div>
+    <div class="col-12">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="no_visa" value="1" id="f-no-visa"
+               {% if filters.no_visa %}checked{% endif %}>
+        <label class="form-check-label small" for="f-no-visa">
+          🇱🇧 Only places where my Lebanese passport needs <strong>no visa in advance</strong> (visa-free or on arrival)</label>
+      </div>
+    </div>
   </form>
 
   {% if results %}
@@ -62,7 +71,8 @@
               {% if r.warm is true %}<span class="badge-warm">☀️ Warm in {{ month_names[filters.month][:3] }}</span>
               {% elif r.warm is false %}<span class="badge-cool">Cooler season</span>{% endif %}
               {% if r.flight %}
-                <div class="text-muted mt-1">✈ {{ r.flight.depart_date.strftime('%d %b') }} · {{ r.flight.price_cents|money }}</div>
+                <div class="text-muted mt-1">✈ {{ r.flight.depart_date.strftime('%d %b') }} · {{ r.flight.price_cents|money }}
+                  · {{ 'direct' if r.flight.stops.startswith('Direct') else r.flight.stops }}</div>
               {% else %}
                 <div class="text-muted mt-1">No flight {% if filters.month %}that month{% else %}scheduled{% endif %}</div>
               {% endif %}

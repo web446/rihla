@@ -10,7 +10,7 @@ public_bp = Blueprint("public", __name__)
 
 # A CSS "poster" (colours + emoji) for each country, used instead of photos
 # so the site works offline during the demo. See static/css/style.css.
-POSTER_ICONS = {"italy": "🏛️", "japan": "⛩️", "greece": "🏺", "turkey": "🕌", "egypt": "🐪", "thailand": "🛕"}
+POSTER_ICONS = {"turkey": "🕌", "armenia": "⛪", "egypt": "🐪", "jordan": "🏜️", "georgia": "🏔️", "malaysia": "🌴"}
 
 
 @public_bp.app_context_processor
@@ -55,6 +55,7 @@ def countries():
         "travelers": int_arg("travelers", 1, 9, default=1),
         "budget": request.args.get("budget", "").strip(),
         "interest": request.args.get("interest", "").strip().lower(),
+        "no_visa": request.args.get("no_visa") == "1",   # checkbox: no visa needed in advance
     }
     budget_cents = dollars_to_cents(filters["budget"]) if filters["budget"] else None
     interests = search.all_interests()
@@ -64,6 +65,7 @@ def countries():
     results = search.search_countries(
         month=filters["month"], max_budget_cents=budget_cents, days=filters["days"],
         interests=[filters["interest"]] if filters["interest"] else None, travelers=filters["travelers"],
+        no_visa_only=filters["no_visa"],
     )
     return render_template("public/countries.html", results=results, filters=filters, interests=interests)
 

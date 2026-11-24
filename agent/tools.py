@@ -59,16 +59,21 @@ def _tool(name, description, properties):
 
 TOOLS = [
     _tool("search_countries",
-          "Find destinations that match the traveler's wishes, each with an estimated trip price. "
-          "Call this whenever the traveler hasn't chosen a country yet (e.g. 'somewhere warm in March').",
-          {"month": _opt("integer", "Travel month, 1-12"),
+          "Find destinations that match the traveler's wishes, each with an estimated trip price and the entry "
+          "rules for a Lebanese passport. Call this whenever the traveler hasn't chosen a country yet "
+          "(e.g. 'somewhere warm in March') or asks where they can go without a visa.",
+          {"no_visa_in_advance_only": {"anyOf": [{"type": "boolean"}, {"type": "null"}],
+                                       "description": "true = only countries a Lebanese passport can enter "
+                                                      "visa-free or with a visa on arrival"},
+           "month": _opt("integer", "Travel month, 1-12"),
            "max_budget_usd": _opt("number", "Maximum total budget in US dollars"),
            "days": _opt("integer", "Trip length in days (default 7)"),
            "interests": {"anyOf": [{"type": "array", "items": {"type": "string"}}, {"type": "null"}],
                          "description": "Interests such as beach, food, history, culture, nature, city, islands, desert, art"},
            "travelers": _opt("integer", "Number of travelers (default 1)")}),
     _tool("get_country_details",
-          "Overview of one country: description, best time, currency, monuments with prices, food, cheapest stays. "
+          "Overview of one country: entry rules for a Lebanese passport (visa, max stay, conditions), description, "
+          "best time, currency, monuments with prices, food, cheapest stays. "
           "Call this when the traveler asks about a specific country.",
           {"country": {"type": "string", "description": "Country name, e.g. 'Italy'"}}),
     _tool("search_flights",
@@ -170,6 +175,19 @@ def _get(model, item_id, country=None):
 # ---------------------------------------------------------------------------
 # Cards (what the chat window draws). Money is already formatted here.
 # ---------------------------------------------------------------------------
+def entry_info(c):
+    """Entry rules for a Lebanese passport, as sent to the AI."""
+    return {"entry_for_lebanese_passport": c.entry_label, "max_stay": c.max_stay,
+            "entry_conditions": c.entry_notes or None, "no_visa_in_advance": c.no_visa_in_advance,
+            "direct_flight_from_beirut": c.has_direct_flight(),
+            "popularity_with_lebanese_1_to_5": c.popularity, "popularity_note": c.popularity_note or None}
+
+
+def country_card(c, price):
+    return {"type": "country", "title": c.name, "slug": c.slug, "subtitle": c.tagline, "price": price,
+            "entry": f"🇱🇧 {c.entry_label} · {c.max_stay}", "direct": c.has_direct_flight(), "warm": None}
+
+
 def flight_card(f):
     return {"type": "flight", "id": f.id, "title": f"{f.airline} {f.flight_number}", "route": f"Beirut → {f.to_city}",
             "dates": f"{f.depart_date:%a %d %b} → {f.return_date:%a %d %b %Y}", "stops": f.stops,
@@ -198,7 +216,8 @@ def search_countries(args, user, conversation_id):
     days = _int(args.get("days"), 1, 30, "days", default=7)
     travelers = _int(args.get("travelers"), 1, 9, "travelers", default=1)
     results = search.search_countries(month=month, max_budget_cents=_usd(args.get("max_budget_usd"), "max_budget_usd"),
-                                      days=days, interests=args.get("interests") or None, travelers=travelers)
+                                      days=days, interests=args.get("interests") or None, travelers=travelers,
+                                      no_visa_only=bool(args.get("no_visa_in_advance_only")))
     data, cards = [], []
     for r in results[:6]:
         c, est = r["country"], r["estimate"]
@@ -206,10 +225,10 @@ def search_countries(args, user, conversation_id):
                      "estimate_includes": [line["label"] for line in est["lines"]],
                      "cheapest_flight": ({"flight_id": r["flight"].id, "depart": r["flight"].depart_date.isoformat(),
                                           "price_usd": r["flight"].price_cents / 100} if r["flight"] else None),
-                     "interests": c.tag_list()})
-        cards.append({"type": "country", "title": c.name, "slug": c.slug, "subtitle": c.tagline,
-                      "price": f"≈ {format_money(est['total_cents'])} for {days} days",
-                      "warm": r["warm"]})
+                     "interests": c.tag_list(), **entry_info(c)})
+        card = country_card(c, f"≈ {format_money(est['total_cents'])} for {days} days")
+        card["warm"] = r["warm"]
+        cards.append(card)
     return ToolResult({"days": days, "travelers": travelers, "results": data,
                        "note": "Estimates = cheapest flight + cheapest stay + daily spending."}, cards)
 
@@ -218,7 +237,8 @@ def get_country_details(args, user, conversation_id):
     c = _country(args.get("country"))
     stays = search.search_stays(c)[:3]
     return ToolResult({
-        "country": c.name, "description": c.description, "best_time": c.best_time, "currency": c.currency,
+        "country": c.name, **entry_info(c),
+        "description": c.description, "best_time": c.best_time, "currency": c.currency,
         "language": c.language, "warm_months": c.warm_month_list(), "interests": c.tag_list(),
         "daily_spend_usd": c.avg_daily_spend_cents / 100,
         "monuments": [{"name": m.name, "city": m.city, "entry_usd": m.entry_cost_cents / 100} for m in c.monuments],
@@ -227,8 +247,7 @@ def get_country_details(args, user, conversation_id):
         "cheapest_stays": [{"stay_id": s.id, "name": s.name, "per_night_usd": s.price_per_night_cents / 100} for s in stays],
         "upcoming_flights": len(search.upcoming_flights(c)),
         "approved_guides": len(search.guides_with_ratings(c)),
-    }, [{"type": "country", "title": c.name, "slug": c.slug, "subtitle": c.tagline,
-         "price": f"Best time: {c.best_time}", "warm": None}])
+    }, [country_card(c, f"Best time: {c.best_time}")])
 
 
 def search_flights(args, user, conversation_id):

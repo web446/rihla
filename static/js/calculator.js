@@ -18,7 +18,7 @@
   let timer = null;        // for "debouncing" (wait until the user stops typing)
   let controller = null;   // lets us cancel an older request that is still loading
 
-  // Build the URL: /api/estimate?country=italy&flight_id=2&...&monument_ids=1,4
+  // Build the URL: /api/estimate?country=turkey&flight_id=2&...&monument_ids=1,4
   function buildUrl() {
     const data = new FormData(form);
     const params = new URLSearchParams();

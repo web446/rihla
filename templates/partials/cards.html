@@ -1,4 +1,5 @@
 {# Reusable pieces of HTML (Jinja macros) shared by several pages. #}
+{% from "partials/passport.html" import entry_badge %}
 
 {# ★★★★☆ for a rating out of 5 (None = no reviews yet) #}
 {% macro stars(rating, count=none) %}
@@ -22,6 +23,7 @@
       <span class="postcard-greeting">Greetings from</span>
       <span class="postcard-name">{{ country.name }}</span>
       <span class="postcard-tagline">{{ country.tagline }}</span>
+      <span class="postcard-entry">{{ entry_badge(country) }}</span>
       {% if footer %}<span class="postcard-footer">{{ footer }}</span>{% endif %}
     </span>
   </a>
