@@ -59,7 +59,7 @@
             </div>
           </div>
           <div class="bp-stub">
-            <button class="btn btn-terracotta w-100 py-2" type="submit">Find my trip</button>
+            <button class="btn btn-red w-100 py-2" type="submit">Find my trip</button>
           </div>
         </form>
       </div>
@@ -114,9 +114,9 @@
       <p>Tell Rihla your month, budget and mood. It searches our flights, stays and guides, builds a full
          trip with the total price, and books it the moment you say "Confirm".</p>
       {% if not g.user %}
-        <a href="{{ url_for('auth.register') }}" class="btn btn-terracotta">Create a free account to chat</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-red">Create a free account to chat</a>
       {% elif g.user.role == 'traveler' %}
-        <a href="#" data-open-chat class="btn btn-terracotta">✈ Chat with Rihla now</a>
+        <a href="#" data-open-chat class="btn btn-red">✈ Chat with Rihla now</a>
       {% endif %}
     </div>
     <div class="col-lg-7">

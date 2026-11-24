@@ -15,7 +15,7 @@
       <input id="q-{{ item_type }}-{{ item.id }}" class="form-control form-control-sm qty" type="number"
              name="quantity" min="1" max="{{ max }}" value="{{ default }}" required>
       <span class="small text-muted">{{ unit }}</span>
-      <button class="btn btn-sm btn-terracotta" type="submit">Add to trip</button>
+      <button class="btn btn-sm btn-red" type="submit">Add to trip</button>
     </form>
   {% elif not g.user %}
     <a class="btn btn-sm btn-outline-ink" href="{{ url_for('auth.login', next=request.path ~ '#' ~ anchor) }}">Log in to book</a>

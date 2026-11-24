@@ -38,7 +38,7 @@
                   class="form-control {% if errors.get('bio') %}is-invalid{% endif %}">{{ values.get('bio', '') }}</textarea>
         {% if errors.get('bio') %}<div class="invalid-feedback">{{ errors['bio'] }}</div>{% endif %}
       </div>
-      <button class="btn btn-terracotta" type="submit">Save profile</button>
+      <button class="btn btn-red" type="submit">Save profile</button>
     </form>
   </div>
 </section>

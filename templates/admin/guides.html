@@ -34,7 +34,7 @@
           <p class="small mb-0">{{ p.bio }}</p>
         </div>
         <div class="col-lg-4 d-flex gap-2 justify-content-lg-end flex-wrap">
-          {% for new_status, label, css in [("approved", "Approve", "btn-olive"), ("rejected", "Reject", "btn-outline-danger"), ("pending", "Back to pending", "btn-outline-ink")] %}
+          {% for new_status, label, css in [("approved", "Approve", "btn-cedar"), ("rejected", "Reject", "btn-outline-danger"), ("pending", "Back to pending", "btn-outline-ink")] %}
             {% if new_status != status %}
               <form method="post" action="{{ url_for('admin.set_guide_status', guide_id=p.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

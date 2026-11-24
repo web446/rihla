@@ -47,7 +47,7 @@
       {% if resource.key == 'flights' and obj %}
         <p class="small text-muted">{{ obj.seats_total - obj.seats_available }} seat(s) already booked; available seats are adjusted automatically.</p>
       {% endif %}
-      <button class="btn btn-terracotta" type="submit">Save {{ resource.singular }}</button>
+      <button class="btn btn-red" type="submit">Save {{ resource.singular }}</button>
       <a class="btn btn-link" href="{{ url_for('admin.content_list', key=resource.key) }}">Cancel</a>
     </form>
   </div>

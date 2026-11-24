@@ -23,7 +23,7 @@
           {% if error %}<div class="invalid-feedback">{{ error }}</div>{% endif %}
         </div>
       </div>
-      <button class="btn btn-terracotta" type="submit">Save</button>
+      <button class="btn btn-red" type="submit">Save</button>
     </form>
     <p class="small mt-3 mb-0">Example: on a $200 guide booking at {{ "%g"|format(rate) }}%, Rihla earns
       <strong>{{ (200 * rate)|round|int|money }}</strong> and the guide receives <strong>{{ (20000 - 200 * rate)|round|int|money }}</strong>.</p>

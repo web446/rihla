@@ -256,20 +256,31 @@ flask --app app run --debug      → http://127.0.0.1:5000/
 
 ## 6. Visual style
 
-**Mood:** vintage travel posters × modern travel magazine — warm, sunny, editorial.
+**Mood:** vintage travel posters × modern travel magazine, in the colours of the **Lebanese flag**
+(the trips start in Beirut): red and white, with the green of the cedar.
 
-| Role | Color | Hex |
-|---|---|---|
-| Ink (nav, headings) | Midnight blue | `#14213D` |
-| Background | Warm sand | `#F7EFE3` |
-| Primary buttons | Terracotta | `#E07A5F` |
-| Success / confirmed | Olive | `#81B29A` |
-| Stars / highlights | Saffron | `#F2CC8F` |
-| Body text | Charcoal | `#2B2B2B` |
+> **Changed after Step 8:** the original warm palette (midnight blue, sand, terracotta, olive,
+> saffron) was replaced by the flag palette below.
 
-**Fonts:** Fraunces (headings) + Inter (body) — Google Fonts, needs your OK.
+| Role | Color | Hex | Contrast |
+|---|---|---|---|
+| Flag red: ribbon, icons, highlights | Lebanese red | `#EE161F` | decoration only |
+| Buttons and links (white text) | Deep red | `#D7141C` | 5.2:1 |
+| Cedar: badges, decoration | Cedar green | `#00A651` | decoration only |
+| Green buttons (white text) | Deep cedar | `#00753A` | 5.8:1 |
+| Headings, dark bars, footer | Very dark cedar | `#10291D` | 14.5:1 |
+| Background | Flag white | `#F8F8F6` | |
+| Stars only | Gold | `#F2C14E` | |
+| Body text | Charcoal | `#222826` | |
 
-**Signature details:** boarding-pass booking cards with a perforated stub · postcard country cards with a stamp · "postmark" animation on confirmed trips · saffron stars.
+The bright flag colours fail the WCAG AA 4.5:1 minimum behind small white text (red 4.4:1, green 3.2:1),
+so the deeper shades are used for buttons.
+
+**Fonts:** Fraunces (headings) + Inter (body), from Google Fonts.
+
+**Signature details:** a red / white / red flag ribbon under the menu · login poster with a cedar 🌲 in a white
+circle · boarding-pass booking cards with a perforated stub · postcard country cards with a stamp ·
+"postmark" animation on confirmed trips.
 
 **Homepage:** hero photo + headline + boarding-pass search widget → "Pick your next stamp" postcards → How it works (Fly → Stay → Explore → Eat) → AI agent teaser → top guides → footer with image credits.
 

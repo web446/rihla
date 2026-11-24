@@ -55,7 +55,7 @@
         {% for name, value in per_country %}
           <div class="bar-row">
             <span class="bar-label">{{ name }}</span>
-            <span class="bar-track"><span class="bar-fill bar-olive" style="width: {{ (value / top * 100)|round(1) }}%"></span></span>
+            <span class="bar-track"><span class="bar-fill bar-cedar" style="width: {{ (value / top * 100)|round(1) }}%"></span></span>
             <span class="bar-value">{{ value|money }}</span>
           </div>
         {% else %}

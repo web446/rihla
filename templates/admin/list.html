@@ -8,7 +8,7 @@
   <p class="poster-kicker">Admin · content</p>
   <div class="d-flex justify-content-between align-items-end flex-wrap gap-2">
     <h1 class="section-title mb-0">{{ resource.title }} <span class="text-muted fs-5">({{ rows|length }})</span></h1>
-    <a class="btn btn-terracotta" href="{{ url_for('admin.content_form', key=resource.key, country_id=country.id if country else '') }}">
+    <a class="btn btn-red" href="{{ url_for('admin.content_form', key=resource.key, country_id=country.id if country else '') }}">
       + Add {{ resource.singular }}</a>
   </div>
   {% include "admin/_nav.html" %}

@@ -200,7 +200,7 @@
       card.append(actions);
       return card;
     }
-    const yes = el("button", "btn btn-sm btn-terracotta", c.action === "cancel" ? "Confirm cancellation" : "Confirm & book");
+    const yes = el("button", "btn btn-sm btn-red", c.action === "cancel" ? "Confirm cancellation" : "Confirm & book");
     const no = el("button", "btn btn-sm btn-outline-ink", "Not now");
     yes.type = no.type = "button";
     yes.addEventListener("click", () => decide(root.dataset.confirmUrl, c.proposal_id, [yes, no]));
