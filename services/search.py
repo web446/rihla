@@ -1,7 +1,7 @@
 """Read-only queries: finding countries, flights, stays and guides.
 
-Used by the public pages now, and by the AI agent's tools in Step 7, so the
-agent sees exactly the same data (and the same rules) as the website.
+Used by the public pages (homepage search, countries list, country pages)
+and the admin pages, so every page sees the same data and the same rules.
 """
 import calendar
 from datetime import date
@@ -94,7 +94,7 @@ def guides_with_ratings(country=None, language=None, max_price_cents=None, limit
 
 
 # ---------------------------------------------------------------------------
-# Country search (homepage widget, countries page, AI "somewhere warm in March")
+# Country search (homepage boarding-pass search and countries page)
 # ---------------------------------------------------------------------------
 def search_countries(month=None, max_budget_cents=None, days=7, interests=None, travelers=1,
                      no_visa_only=False):

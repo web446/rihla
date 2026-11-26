@@ -11,8 +11,8 @@
         <p class="poster-kicker">🇱🇧 No visa needed in advance · Flights from Beirut</p>
         <h1 class="hero-title">From the first click<br>to the <em>last dinner.</em></h1>
         <p class="lead hero-lead">Pick a country and see everything in one place: what to visit, where to eat,
-          where to sleep, who to explore with and what it will really cost. Then book it, by clicking or
-          by chatting with our AI travel agent.</p>
+          where to sleep, who to explore with and what it will really cost. Then book the whole trip
+          in a few clicks.</p>
       </div>
 
       <div class="col-lg-6">
@@ -103,33 +103,6 @@
           <p class="small mb-0">{{ text }}</p>
         </div>
       {% endfor %}
-    </div>
-  </div>
-</section>
-
-{# ---------------- AI agent teaser ---------------- #}
-<section class="container section">
-  <div class="row align-items-center g-4">
-    <div class="col-lg-5">
-      <p class="poster-kicker">Your AI travel agent</p>
-      <h2 class="section-title">Just say where you dream of going.</h2>
-      <p>Tell Rihla your month, budget and mood. It searches our flights, stays and guides, builds a full
-         trip with the total price, and books it the moment you say "Confirm".</p>
-      {% if not g.user %}
-        <a href="{{ url_for('auth.register') }}" class="btn btn-red">Create a free account to chat</a>
-      {% elif g.user.role == 'traveler' %}
-        <a href="#" data-open-chat class="btn btn-red">✈ Chat with Rihla now</a>
-      {% endif %}
-    </div>
-    <div class="col-lg-7">
-      <div class="chat-demo" aria-label="Example conversation">
-        <div class="bubble bubble-user">I want somewhere warm in March for 5 days, budget $1500.</div>
-        <div class="bubble bubble-agent">Egypt and Malaysia are both warm in March, and you can enter both with your Lebanese passport. ☀️ Egypt fits your budget best,
-          with a charter to Sharm El Sheikh on 20 March. Want me to add a guide?</div>
-        <div class="bubble bubble-user">Yes, an English-speaking guide for 2 days.</div>
-        <div class="bubble bubble-agent">Nour El-Sayed, diving instructor and Luxor local, $75/day. Here's your full trip with the total price.
-          <strong>Shall I book this?</strong></div>
-      </div>
     </div>
   </div>
 </section>

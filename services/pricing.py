@@ -35,8 +35,7 @@ def estimate_trip_cost(country=None, flight=None, stay=None, nights=0, guide=Non
     """Estimated total price of a trip, line by line (all in cents).
 
     Used by the calculator on the country page (through /api/estimate),
-    the country search, and later the AI agent's estimate_trip_cost tool,
-    so every part of the site gives the SAME number.
+    and the country search, so every part of the site gives the SAME number.
 
         flight       price per seat      x travelers
         stay         price per night     x nights        (one room for the group)

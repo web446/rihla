@@ -2,8 +2,8 @@
  *
  * Every time the form changes, we ask the SERVER for the price with fetch()
  * (GET /api/estimate?...). The maths lives only in Python
- * (services/pricing.py -> estimate_trip_cost), so the calculator, the AI agent
- * and the bookings always agree. This file only sends the choices and shows
+ * (services/pricing.py -> estimate_trip_cost), so the calculator, the country
+ * search and the bookings always agree. This file only sends the choices and shows
  * the answer.
  */
 (function () {

@@ -49,7 +49,7 @@ class DashboardTests(AdminTestCase):
         self.assertNotIn("Garni Temple", self.page("/admin/content/monuments?country=jordan"))
 
     def test_bookings_page_can_be_filtered(self):
-        self.assertIn("Maya Khoury", self.page("/admin/bookings?source=web&status=confirmed"))
+        self.assertIn("Maya Khoury", self.page("/admin/bookings?status=confirmed"))
 
 
 class ContentTests(AdminTestCase):

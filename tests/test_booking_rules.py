@@ -1,7 +1,7 @@
 """The booking rules in services/booking.py.
 
-The website checkout AND the AI agent both call create_booking(), so these
-rules protect both ways of booking.
+The checkout page and the seed data both call create_booking(), so these
+rules protect every booking.
 """
 from datetime import date, timedelta
 

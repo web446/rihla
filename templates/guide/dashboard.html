@@ -64,7 +64,7 @@
               <td>
                 {% if b.status == 'cancelled' %}<span class="badge-cool">Cancelled</span>
                 {% elif b.end_date < today %}<span class="badge-warm">Done</span>
-                {% else %}<span class="badge-ai">Upcoming</span>{% endif %}
+                {% else %}<span class="badge-upcoming">Upcoming</span>{% endif %}
               </td>
             </tr>
           {% endfor %}

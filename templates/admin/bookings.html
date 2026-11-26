@@ -15,13 +15,6 @@
           <option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
       </select>
     </div>
-    <div>
-      <label class="form-label small" for="f-source">Booked via</label>
-      <select id="f-source" name="source" class="form-select form-select-sm">
-        {% for v, l in [("", "All"), ("web", "Website"), ("agent", "AI agent")] %}
-          <option value="{{ v }}" {% if source == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
-      </select>
-    </div>
     <button class="btn btn-sm btn-outline-ink" type="submit">Filter</button>
   </form>
 
@@ -46,8 +39,7 @@
             <td>
               {% if b.status == 'cancelled' %}<span class="badge-cool">Cancelled</span>
               {% elif b.end_date < today %}<span class="badge-warm">Done</span>
-              {% else %}<span class="badge-ai">Upcoming</span>{% endif %}
-              {% if b.source == 'agent' %}<span title="Booked by the AI agent">🤖</span>{% endif %}
+              {% else %}<span class="badge-upcoming">Upcoming</span>{% endif %}
             </td>
           </tr>
         {% else %}

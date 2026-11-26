@@ -43,10 +43,6 @@ def dashboard():
         .join(Booking).where(confirmed).group_by(BookingItem.item_type)
     ).all())
 
-    # Bookings made on the website vs. by the AI agent
-    by_source = dict(db.session.execute(
-        db.select(Booking.source, func.count(Booking.id)).where(confirmed).group_by(Booking.source)
-    ).all())
 
     # Revenue per country (every item of a trip is in the same country)
     per_country = {}
@@ -66,7 +62,7 @@ def dashboard():
         stats={"count": count, "revenue": revenue, "commission": commission, "providers": providers,
                "cancelled": cancelled, "pending_guides": pending_guides, "users": users,
                "rate": get_commission_rate()},
-        by_type=by_type, by_source=by_source, per_country=per_country, recent=recent,
+        by_type=by_type, per_country=per_country, recent=recent,
         resources=RESOURCES,
     )
 
@@ -197,19 +193,16 @@ def content_delete(key, item_id):
 @role_required("admin")
 def bookings():
     status = request.args.get("status", "")
-    source = request.args.get("source", "")
     query = db.select(Booking).order_by(Booking.created_at.desc())
     if status in ("confirmed", "cancelled"):
         query = query.where(Booking.status == status)
-    if source in ("web", "agent"):
-        query = query.where(Booking.source == source)
     rows = db.session.execute(query).scalars().all()
     totals = {
         "total": sum(b.total_cents for b in rows if b.status == "confirmed"),
         "commission": sum(b.commission_cents for b in rows if b.status == "confirmed"),
         "provider": sum(b.provider_cents for b in rows if b.status == "confirmed"),
     }
-    return render_template("admin/bookings.html", rows=rows, totals=totals, status=status, source=source,
+    return render_template("admin/bookings.html", rows=rows, totals=totals, status=status,
                            today=date.today())
 
 

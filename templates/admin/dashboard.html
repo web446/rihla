@@ -28,7 +28,7 @@
       <div class="small text-muted">airlines, hotels, guides</div></div></div>
     <div class="col-6 col-lg-3"><div class="stat-card">
       <div class="stat-label">Bookings</div><div class="stat-value">{{ stats.count }}</div>
-      <div class="small text-muted">{{ stats.cancelled }} cancelled · 🤖 {{ by_source.get('agent', 0) }} by AI</div></div></div>
+      <div class="small text-muted">{{ stats.cancelled }} cancelled</div></div></div>
   </div>
 
   <div class="row g-4 mb-4">
@@ -78,7 +78,7 @@
           <tbody>
             {% for b in recent %}
               <tr class="{{ 'text-muted' if b.status == 'cancelled' }}">
-                <td>{{ b.id }}{% if b.source == 'agent' %} 🤖{% endif %}</td>
+                <td>{{ b.id }}</td>
                 <td>{{ b.traveler.full_name }}</td>
                 <td>{{ b.country.name if b.country }}{% if b.status == 'cancelled' %} <span class="badge-cool">cancelled</span>{% endif %}</td>
                 <td class="text-end">{{ b.total_cents|money }}</td>

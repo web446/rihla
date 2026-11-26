@@ -7,7 +7,7 @@
   //    Skipped for people who asked their system for reduced motion.
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const targets = document.querySelectorAll(
-    ".postcard, .guide-card, .info-card, .flight-pass, .trip-ticket, .stat-card, .step-icon, .chat-demo"
+    ".postcard, .guide-card, .info-card, .flight-pass, .trip-ticket, .stat-card, .step-icon"
   );
   if (!reduceMotion && "IntersectionObserver" in window) {
     const observer = new IntersectionObserver((entries) => {

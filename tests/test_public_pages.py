@@ -28,6 +28,12 @@ class PageTests(RihlaTestCase):
         response = self.client.get("/countries?month=99&days=abc&budget=NaN&interest=<script>")
         self.assertEqual(response.status_code, 200)
 
+    def test_there_is_no_ai_chat(self):
+        """The AI travel agent was removed: no chat window and no chat API."""
+        self.login("traveler@rihla.test", "Traveler123!")
+        self.assertNotIn("chat", self.page("/").lower())
+        self.assertEqual(self.client.get("/api/conversations").status_code, 404)
+
     def test_pending_guides_are_hidden(self):
         pending = GuideProfile.query.filter_by(status="pending").first()
         approved = GuideProfile.query.filter_by(status="approved").first()

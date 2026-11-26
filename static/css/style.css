@@ -259,12 +259,6 @@ a:hover { color: var(--ink); }
   background: rgba(255, 255, 255, .08); border: 2px dashed rgba(255, 255, 255, .7); font-size: 1.8rem;
 }
 
-/* AI teaser chat */
-.chat-demo { background: var(--paper); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); display: grid; gap: .8rem; }
-.bubble { max-width: 85%; padding: .75rem 1rem; border-radius: 18px; font-size: .95rem; }
-.bubble-user { justify-self: end; background: var(--red-dark); color: #fff; border-bottom-right-radius: 4px; }
-.bubble-agent { justify-self: start; background: var(--snow-deep); color: var(--ink); border-bottom-left-radius: 4px; }
-
 /* ==========================================================================
    Countries list
    ========================================================================== */
@@ -439,7 +433,7 @@ a:hover { color: var(--ink); }
 .tt-body { flex: 1; padding: 1.1rem 1.3rem; }
 .tt-items { list-style: none; padding: 0; margin: 0 0 .8rem; font-size: .9rem; }
 .tt-items li { display: flex; justify-content: space-between; gap: 1rem; padding: .35rem 0; border-bottom: 1px dotted #DCE0DC; }
-.badge-ai { font-size: .75rem; padding: .15rem .55rem; border-radius: 999px; font-weight: 600; background: #E4EFE9; color: var(--cedar-dark); }
+.badge-upcoming { font-size: .75rem; padding: .15rem .55rem; border-radius: 999px; font-weight: 600; background: #E4EFE9; color: var(--cedar-dark); }
 .is-cancelled { opacity: .6; }
 .is-cancelled .tt-side { filter: grayscale(1); }
 .just-booked { outline: 3px solid var(--cedar); outline-offset: 3px; }
@@ -503,110 +497,6 @@ a:hover { color: var(--ink); }
 .rihla-table table { margin: 0; }
 .rihla-table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: #5E6A63; background: var(--snow); font-weight: 600; }
 .rihla-table td, .rihla-table th { padding: .75rem 1rem; vertical-align: middle; }
-
-/* ==========================================================================
-   AI travel agent chat
-   ========================================================================== */
-.chat { position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 1050; }
-.chat-fab {
-  display: flex; align-items: center; gap: .55rem; border: 0; border-radius: 999px;
-  padding: .75rem 1.2rem .75rem .8rem; background: var(--ink); color: var(--snow);
-  font-weight: 600; box-shadow: 0 10px 30px rgba(16, 41, 29, .35); transition: transform .2s;
-}
-.chat-fab:hover { transform: translateY(-2px); }
-.chat-fab-icon {
-  display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 50%;
-  background: var(--red); color: #fff; transform: rotate(-20deg);
-}
-.chat.is-open .chat-fab { display: none; }
-
-.chat-panel {
-  width: min(400px, calc(100vw - 2rem)); height: min(640px, calc(100vh - 6rem));
-  display: flex; flex-direction: column; overflow: hidden;
-  background: var(--snow); border-radius: 22px; box-shadow: 0 20px 60px rgba(16, 41, 29, .35);
-  border: 1px solid var(--snow-deep);
-}
-.chat-panel[hidden] { display: none; }
-.chat-head { display: flex; align-items: center; gap: .5rem; padding: .8rem 1rem; background: var(--ink); color: var(--snow); }
-.chat-head strong { font-family: var(--font-display); font-size: 1.1rem; display: block; line-height: 1.1; }
-.chat-avatar { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--red); color: #fff; }
-.chat-mode { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: #FFB8BB; }
-.chat-mode.is-ai { color: #9FE0BE; }
-.chat-history { max-width: 6.5rem; font-size: .75rem; border-radius: 8px; border: 0; padding: .25rem; background: rgba(255, 255, 255, .12); color: var(--snow); }
-.chat-history option { color: var(--ink); }
-.chat-icon-btn { border: 0; background: transparent; color: var(--snow); font-size: 1.1rem; width: 2rem; height: 2rem; border-radius: 50%; }
-.chat-icon-btn:hover { background: rgba(255, 255, 255, .15); }
-
-.chat-log { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: .6rem; }
-.chat-row { display: flex; flex-direction: column; gap: .4rem; }
-.chat-bubble { max-width: 88%; padding: .6rem .85rem; border-radius: 16px; font-size: .92rem; line-height: 1.4; }
-.chat-user { align-items: flex-end; }
-.chat-user .chat-bubble { background: var(--red-dark); color: #fff; border-bottom-right-radius: 4px; }
-.chat-assistant .chat-bubble { background: var(--paper); color: var(--ink); border-bottom-left-radius: 4px; border: 1px solid #E4E7E3; }
-.chat-notice { align-self: center; font-size: .8rem; background: #F8DCD4; color: #7A2E1C; padding: .35rem .8rem; border-radius: 999px; text-align: center; }
-.chat-typing .chat-bubble { display: flex; gap: .25rem; padding: .8rem 1rem; }
-.chat-typing .dot { width: .45rem; height: .45rem; border-radius: 50%; background: #A9B1AC; animation: chat-blink 1.2s infinite ease-in-out; }
-.chat-typing .dot:nth-child(2) { animation-delay: .15s; }
-.chat-typing .dot:nth-child(3) { animation-delay: .3s; }
-@keyframes chat-blink { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
-
-/* Result cards scroll sideways like a deck of tickets */
-.chat-cards { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .3rem; max-width: 100%; scroll-snap-type: x mandatory; }
-.chat-card {
-  flex: 0 0 190px; scroll-snap-align: start; display: flex; flex-direction: column; gap: .15rem;
-  background: var(--paper); border-radius: 14px; padding: .75rem .85rem; border: 1px solid #E4E7E3;
-  border-top: 4px solid var(--red); font-size: .82rem;
-}
-.chat-card-stay { border-top-color: var(--cedar-dark); }
-.chat-card-guide { border-top-color: var(--cedar); }
-.chat-card-country { border-top-color: var(--ink); }
-.chat-card-booking { border-top-color: var(--cedar); }
-.chat-card-title { font-weight: 700; color: var(--ink); line-height: 1.25; }
-.chat-card-sub { color: #56615A; font-size: .78rem; }
-.chat-card-stars { color: #B7861F; font-size: .78rem; }
-.chat-card-entry { color: #005C2D; font-size: .75rem; font-weight: 600; }
-.chat-card-price { font-weight: 600; color: var(--ink); margin-top: auto; padding-top: .3rem; }
-.chat-card-link { font-size: .78rem; }
-.chat-card-btn {
-  margin-top: .4rem; border: 0; border-radius: 999px; padding: .3rem .8rem; align-self: flex-start;
-  background: var(--red-dark); color: #fff; font-weight: 600; font-size: .78rem;
-}
-.chat-card-btn:hover { background: #B3101A; }
-
-/* Booking summary = mini boarding pass */
-.chat-summary {
-  background: var(--paper); border-radius: 14px; border: 1px solid #E4E7E3; overflow: hidden;
-  font-size: .85rem; box-shadow: 0 4px 14px rgba(16, 41, 29, .08);
-}
-.chat-summary > *:not(.chat-summary-head) { margin-left: .9rem; margin-right: .9rem; }
-.chat-summary .chat-card-title { margin-top: .6rem; }
-.chat-summary-head { background: var(--red-dark); color: #fff; padding: .35rem .9rem; font-family: ui-monospace, Consolas, monospace; letter-spacing: .15em; font-size: .7rem; }
-.chat-summary-lines { list-style: none; padding: 0; margin-top: .5rem; margin-bottom: .5rem; }
-.chat-summary-lines li { display: flex; justify-content: space-between; gap: .5rem; padding: .35rem 0; border-bottom: 1px dotted #DCE0DC; }
-.chat-summary-lines small { color: #5E6A63; }
-.chat-summary-total { display: flex; justify-content: space-between; align-items: baseline; padding: .4rem 0; border-top: 2px dashed #CDD3CF; }
-.chat-summary-total strong { font-family: var(--font-display); font-size: 1.3rem; color: var(--red-dark); }
-.chat-summary-actions { display: flex; gap: .5rem; padding: .3rem 0 .9rem; }
-
-.chat-summary-closed { font-size: .8rem; font-weight: 600; color: var(--cedar-dark); }
-.chat-starters { display: flex; gap: .4rem; flex-wrap: wrap; padding: 0 1rem .6rem; }
-.chat-starters[hidden] { display: none; }
-.chat-starter {
-  border: 1.5px solid #CDD3CF; background: var(--paper); color: var(--ink); border-radius: 999px;
-  font-size: .78rem; padding: .3rem .7rem; text-align: left;
-}
-.chat-starter:hover { border-color: var(--red); color: var(--red-dark); }
-.chat-form { display: flex; gap: .5rem; padding: .7rem; border-top: 1px solid var(--snow-deep); background: var(--paper); }
-.chat-form input { flex: 1; border: 1.5px solid #D2D8D4; border-radius: 999px; padding: .55rem 1rem; font-size: .92rem; background: var(--snow); }
-.chat-form input:focus { outline: none; border-color: var(--red); }
-.chat-send { width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 0; background: var(--red-dark); color: #fff; }
-
-@media (max-width: 576px) {
-  .chat { right: .75rem; bottom: .75rem; }
-  .chat-fab-label { display: none; }
-  .chat-fab { padding: .6rem; }
-  .chat-panel { position: fixed; inset: .5rem; width: auto; height: auto; }
-}
 
 /* ==========================================================================
    Lebanese passport: entry badges, popularity dots, passport card
@@ -678,7 +568,7 @@ a:hover { color: var(--ink); }
 /* ==========================================================================
    Polish: footer, navigation state, flashes, focus, reveal animation
    ========================================================================== */
-.rihla-footer { background: var(--ink); color: rgba(255, 255, 255, .85); padding: 3rem 0 5.5rem; /* room for the chat button */ margin-top: 4rem; font-size: .92rem; }
+.rihla-footer { background: var(--ink); color: rgba(255, 255, 255, .85); padding: 3rem 0 2rem; margin-top: 4rem; font-size: .92rem; }
 .footer-logo { color: #fff; text-decoration: none; font-size: 1.5rem; }
 .footer-logo:hover { color: #FF9EA2; }
 .footer-title { font-family: var(--font-body); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .14em; color: #FF9EA2; margin-bottom: .8rem; }

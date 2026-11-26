@@ -121,8 +121,8 @@ def checkout():
         return render_template("traveler/checkout.html", trip=trip), 400
 
     try:
-        # THE shared booking function: same commission, seats and rules as the AI agent.
-        booking = create_booking(g.user, trip["booking_items"], trip["start"], trip["end"], source="web")
+        # THE shared booking function: commission, seats and rules are all in services/booking.py.
+        booking = create_booking(g.user, trip["booking_items"], trip["start"], trip["end"])
     except BookingError as error:
         flash(str(error), "danger")
         return redirect(url_for("traveler.basket_view"))

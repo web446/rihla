@@ -14,9 +14,9 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 
 def database_uri():
-    # Same pattern as quiz_api.py in Chapter 9:
-    # Render gives DATABASE_URL (PostgreSQL); on your PC it falls back to SQLite.
+    # If DATABASE_URL is set (e.g. a PostgreSQL address) it is used; otherwise SQLite.
     # "sqlite:///rihla.db" is created inside the instance/ folder by Flask-SQLAlchemy.
+    # On Render we also use SQLite: the build command runs "flask --app app init-db".
     url = os.environ.get("DATABASE_URL") or "sqlite:///rihla.db"
     return url.replace("postgres://", "postgresql://", 1)
 
@@ -27,12 +27,3 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or "dev-only-change-me"
 
     SQLALCHEMY_DATABASE_URI = database_uri()
-
-    # AI travel agent settings:
-    #   "claude" = Claude API (paid), "gemini" = Google Gemini API (has a free tier),
-    #   "none"   = the rule-based demo mode (no key needed).
-    AI_PROVIDER = (os.environ.get("AI_PROVIDER") or "none").lower()
-    AI_API_KEY = os.environ.get("AI_API_KEY") or ""
-    AI_MODEL = os.environ.get("AI_MODEL") or ("gemini-3.5-flash-lite" if AI_PROVIDER == "gemini" else "claude-opus-5-5")
-    AI_EFFORT = os.environ.get("AI_EFFORT") or "medium"   # low | medium | high
-    CHAT_LIMIT_PER_HOUR = int(os.environ.get("CHAT_LIMIT_PER_HOUR") or 20)

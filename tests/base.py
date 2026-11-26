@@ -23,9 +23,6 @@ TEMP_DIR = tempfile.mkdtemp(prefix="rihla-tests-")
 DB_FILE = os.path.join(TEMP_DIR, "test.db")
 SEED_COPY = os.path.join(TEMP_DIR, "seed-copy.db")
 os.environ["DATABASE_URL"] = "sqlite:///" + DB_FILE.replace("\\", "/")
-# The AI agent always runs in demo mode during tests: no API key, no internet.
-os.environ["AI_PROVIDER"] = "none"
-os.environ["AI_API_KEY"] = ""
 atexit.register(shutil.rmtree, TEMP_DIR, ignore_errors=True)
 
 from app import app  # noqa: E402  (has to come after the lines above)
@@ -33,8 +30,6 @@ from extensions import db  # noqa: E402
 from models import User  # noqa: E402
 
 app.config["TESTING"] = True
-DEFAULT_CHAT_LIMIT = app.config["CHAT_LIMIT_PER_HOUR"]
-DEFAULT_MODEL = app.config["AI_MODEL"]
 
 
 def _close_database():
@@ -63,10 +58,6 @@ class RihlaTestCase(unittest.TestCase):
     def setUp(self):
         _create_seed_copy()                          # only does the work the first time
         shutil.copyfile(SEED_COPY, DB_FILE)          # back to the original sample data
-        app.config["AI_PROVIDER"] = "none"
-        app.config["AI_API_KEY"] = ""
-        app.config["AI_MODEL"] = DEFAULT_MODEL
-        app.config["CHAT_LIMIT_PER_HOUR"] = DEFAULT_CHAT_LIMIT
         self.ctx = app.app_context()
         self.ctx.push()
         self.client = app.test_client()              # acts like a browser (keeps cookies)

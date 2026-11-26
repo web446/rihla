@@ -260,7 +260,6 @@ class Booking(db.Model):
     __tablename__ = "bookings"
     __table_args__ = (
         CheckConstraint("status IN ('confirmed', 'cancelled')", name="ck_booking_status"),
-        CheckConstraint("source IN ('web', 'agent')", name="ck_booking_source"),
     )
 
     id = db.Column(db.Integer, primary_key=True)
@@ -274,7 +273,6 @@ class Booking(db.Model):
     commission_cents = db.Column(db.Integer, nullable=False)   # platform earnings
     provider_cents = db.Column(db.Integer, nullable=False)     # owed to airline/hotel/guide
     status = db.Column(db.String(10), nullable=False, default="confirmed")
-    source = db.Column(db.String(10), nullable=False, default="web")  # 'agent' = booked by the AI
     created_at = db.Column(db.DateTime, nullable=False, default=now)
 
     traveler = db.relationship("User", back_populates="bookings")
@@ -385,62 +383,3 @@ class Setting(db.Model):
             row.value = str(value)
         else:
             db.session.add(Setting(key=key, value=str(value)))
-
-
-# --------------------------------------------------------------------------
-# AI travel agent
-# --------------------------------------------------------------------------
-class ChatConversation(db.Model):
-    __tablename__ = "chat_conversations"
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    title = db.Column(db.String(120), nullable=False, default="New trip")
-    created_at = db.Column(db.DateTime, nullable=False, default=now)
-    updated_at = db.Column(db.DateTime, nullable=False, default=now, onupdate=now)
-
-    messages = db.relationship(
-        "ChatMessage", back_populates="conversation",
-        cascade="all, delete-orphan", order_by="ChatMessage.id",
-    )
-
-
-class ChatMessage(db.Model):
-    __tablename__ = "chat_messages"
-    __table_args__ = (CheckConstraint("role IN ('user', 'assistant', 'tool')", name="ck_msg_role"),)
-
-    id = db.Column(db.Integer, primary_key=True)
-    conversation_id = db.Column(db.Integer, db.ForeignKey("chat_conversations.id"), nullable=False)
-    role = db.Column(db.String(10), nullable=False)
-    content = db.Column(db.Text, nullable=False)       # the text shown in the chat window
-    cards_json = db.Column(db.Text)  # flight / hotel / guide cards shown under the message
-    # The EXACT content blocks sent to / received from the Claude API (text, thinking,
-    # tool_use, tool_result), saved so a conversation can continue later. They are
-    # replayed unchanged: Claude's thinking blocks are only valid if the earlier
-    # conversation is byte-for-byte the same, so this history is append-only.
-    api_json = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, nullable=False, default=now, index=True)
-
-    conversation = db.relationship("ChatConversation", back_populates="messages")
-
-
-class BookingProposal(db.Model):
-    """A booking (or cancellation) the AI has PREPARED but not done.
-
-    The AI can only create proposals. The real booking happens when the
-    logged-in user clicks "Confirm", which calls the normal booking service.
-    """
-    __tablename__ = "booking_proposals"
-    __table_args__ = (
-        CheckConstraint("action IN ('create', 'cancel')", name="ck_proposal_action"),
-        CheckConstraint("status IN ('pending', 'confirmed', 'expired')", name="ck_proposal_status"),
-    )
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    conversation_id = db.Column(db.Integer, db.ForeignKey("chat_conversations.id"))
-    action = db.Column(db.String(10), nullable=False)
-    payload_json = db.Column(db.Text, nullable=False)  # the items, or the booking id to cancel
-    total_cents = db.Column(db.Integer, nullable=False, default=0)
-    status = db.Column(db.String(10), nullable=False, default="pending")
-    created_at = db.Column(db.DateTime, nullable=False, default=now)

@@ -74,7 +74,6 @@ class BasketTests(RihlaTestCase):
         self.assertEqual(booking.total_cents, 167000)
         self.assertEqual(booking.commission_cents, 16700)    # 10%
         self.assertEqual(booking.provider_cents, 150300)
-        self.assertEqual(booking.source, "web")
         self.assertEqual(booking.start_date, self.flight.depart_date)
         db.session.refresh(self.flight)
         self.assertEqual(self.flight.seats_available, seats_before - 2)

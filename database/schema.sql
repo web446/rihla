@@ -138,22 +138,10 @@ CREATE TABLE bookings (
 	commission_cents INTEGER NOT NULL, 
 	provider_cents INTEGER NOT NULL, 
 	status VARCHAR(10) NOT NULL, 
-	source VARCHAR(10) NOT NULL, 
 	created_at DATETIME NOT NULL, 
 	PRIMARY KEY (id), 
 	CONSTRAINT ck_booking_status CHECK (status IN ('confirmed', 'cancelled')), 
-	CONSTRAINT ck_booking_source CHECK (source IN ('web', 'agent')), 
 	FOREIGN KEY(traveler_id) REFERENCES users (id)
-);
-
-CREATE TABLE chat_conversations (
-	id INTEGER NOT NULL, 
-	user_id INTEGER NOT NULL, 
-	title VARCHAR(120) NOT NULL, 
-	created_at DATETIME NOT NULL, 
-	updated_at DATETIME NOT NULL, 
-	PRIMARY KEY (id), 
-	FOREIGN KEY(user_id) REFERENCES users (id)
 );
 
 CREATE TABLE booking_items (
@@ -178,35 +166,6 @@ CREATE TABLE booking_items (
 	FOREIGN KEY(guide_id) REFERENCES guide_profiles (id)
 );
 
-CREATE TABLE chat_messages (
-	id INTEGER NOT NULL, 
-	conversation_id INTEGER NOT NULL, 
-	role VARCHAR(10) NOT NULL, 
-	content TEXT NOT NULL, 
-	cards_json TEXT, 
-	api_json TEXT, 
-	created_at DATETIME NOT NULL, 
-	PRIMARY KEY (id), 
-	CONSTRAINT ck_msg_role CHECK (role IN ('user', 'assistant', 'tool')), 
-	FOREIGN KEY(conversation_id) REFERENCES chat_conversations (id)
-);
-
-CREATE TABLE booking_proposals (
-	id INTEGER NOT NULL, 
-	user_id INTEGER NOT NULL, 
-	conversation_id INTEGER, 
-	action VARCHAR(10) NOT NULL, 
-	payload_json TEXT NOT NULL, 
-	total_cents INTEGER NOT NULL, 
-	status VARCHAR(10) NOT NULL, 
-	created_at DATETIME NOT NULL, 
-	PRIMARY KEY (id), 
-	CONSTRAINT ck_proposal_action CHECK (action IN ('create', 'cancel')), 
-	CONSTRAINT ck_proposal_status CHECK (status IN ('pending', 'confirmed', 'expired')), 
-	FOREIGN KEY(user_id) REFERENCES users (id), 
-	FOREIGN KEY(conversation_id) REFERENCES chat_conversations (id)
-);
-
 CREATE TABLE reviews (
 	id INTEGER NOT NULL, 
 	booking_item_id INTEGER NOT NULL, 
@@ -224,6 +183,3 @@ CREATE TABLE reviews (
 );
 
 CREATE UNIQUE INDEX ix_users_email ON users (email);
-
-CREATE INDEX ix_chat_messages_created_at ON chat_messages (created_at);
-

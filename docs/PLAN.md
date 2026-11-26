@@ -3,6 +3,10 @@
 > *"From the first click to the last dinner."*
 > GIN446 Web — Final Project. Status: **waiting for approval** (no code written yet).
 
+> **Update (26 November 2026):** this is the ORIGINAL plan. The AI travel agent described below was built,
+> then **removed** from the final website (no AI chat). Everything else was built as planned.
+> See the README and docs/CODE_GUIDE.md for the final version.
+
 ---
 
 ## 0. Stack and why
